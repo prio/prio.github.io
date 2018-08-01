@@ -2,8 +2,6 @@
 layout: post
 title: Conference Videos 2012
 ---
-{{ page.date | date: '%B %d, %Y' }}
-
 ![Conference](/images/meeting-room-business-conference-691485.jpeg)
 
 I wanted a list of video links to some interesting conferences so I will add them here as a reference for others.
