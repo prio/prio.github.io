@@ -39,11 +39,11 @@ $ jupyter notebook
 
 Your browser should open the interface (if it doesn''t point it at [http://localhost:8888](http://localhost:8888)). When you select the new menu item, ielxir should be an option
 
-{<1>}![Jupyter Interface](/content/images/2015/09/Screen-Shot-2015-09-08-at-17-01-00.png)
+[Jupyter Interface](/images/Screen-Shot-2015-09-08-at-17-01-00.png)
 
 You can now enter any code that you would enter into an iex session, and save that code as a document for reference or editing later.
 
-{<2>}![Jupyter IElixir Kernel](/images/Screen-Shot-2015-09-08-at-17-03-38-1.png)
+[Jupyter IElixir Kernel](/images/Screen-Shot-2015-09-08-at-17-03-38-1.png)
 
 ## Conclusion
 
