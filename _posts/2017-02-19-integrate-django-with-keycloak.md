@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Integrate Django with Keycloak
+permalink: /static/integrate-django-with-keycloak
 ---
 
 [Keycloak](http://www.keycloak.org/) is an open source [identity and access management (IAM)](https://en.wikipedia.org/wiki/Identity_management) and [single sign on (SSO)](https://en.wikipedia.org/wiki/Single_sign-on) solution from [Redhat](https://www.redhat.com/). If you have multiple web applications or services that require authentication, keycloak saves you from having to write the same authentication code over and over again, and allows your users to authenticate against multiple applications without having to log in multiple times. In this post I will show how to set up Keycloak running locally, and how to use it as the authentication provider for a [Django](https://www.djangoproject.com/) application. This post uses Python 3.x.
