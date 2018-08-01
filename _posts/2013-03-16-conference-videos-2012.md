@@ -1,6 +1,10 @@
 ---
 published: false
 ---
+---
+layout: post
+title: Conference Videos 2012
+---
 # Conference Videos 2012
 
 **Note:** This is was sitting around on my harddrive, published incase its of use to someone else.
