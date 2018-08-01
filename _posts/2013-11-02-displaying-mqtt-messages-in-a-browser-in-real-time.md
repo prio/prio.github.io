@@ -18,7 +18,7 @@ So, its time to put all this together. As I mentioned, Mosquitto is ideal for ru
 
 See [http://www.rabbitmq.com/download.html][7] for instructions on how to install RabbitMQ. If you are deploying on EC2 or similar you will need to make sure the following ports are open:
 
-<!--
+
 | Port     | Reason                                        |
 | -------: | --------------------------------------------- |
 | 22       | SSH access                                    | 
@@ -26,7 +26,7 @@ See [http://www.rabbitmq.com/download.html][7] for instructions on how to instal
 | 1883     | Used to send/receive MQTT messages            |
 | 15674    | Used to send/receive STOMP messages           |
 | 15672    | *Optional* Used by the web management plug-in |
--->
+<!--
 <table>
 <thead>
 <tr>
@@ -55,7 +55,7 @@ See [http://www.rabbitmq.com/download.html][7] for instructions on how to instal
   <td><em>Optional</em> Used by the web management plug-in</td>
 </tr>
 </tbody></table>
-
+-->
 
 Once installed we need to enable the MQTT and Web Stomp plugins. We do this by running
 
@@ -76,9 +76,11 @@ Next we need to install Mosquitto on our Raspberry Pi. Make sure you get the lat
 
 We then need to add the bridge to our config file. You can read the full details of how to create bridges in the [Mosquitto.conf man page][5] but for now I will just describe what we need for our setup. Edit */etc/mosquitto/mosquitto.conf* adding the following to the *Bridges* section:
 
+{% highlight ini %}
     connection main
     address <rabbitmq-broker-url>
     topic # both 0 sensor/ sensor/jons-house/
+{% endhiglight %}
 
 So, firstly we give our connection a name (every connection in a config file must have a unique name). Secondly, we tell Mosquitto the address of the broker we want it to bridge with. Thirdly, we describe how we want topics to be shared among the two brokers. The *topic* keyword is described as:
 
