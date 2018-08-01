@@ -1,8 +1,11 @@
-# Simple Sliding Windows in Elixir
-
-## Custom data structures in Elixir
+---
+layout: post
+title: Simple Sliding Windows in Elixir
+---
 
 As part of some research I have been doing I wanted a sliding window data structure and thought it would be interesting to see how to implement custom data structures in Elixir.
+
+## Custom data structures in Elixir
 
 **Note:** What follows is a very naive implementation, I was more focused on the interface and learning Elixir over performance but I would be very interested in more sophisticated implementations, so please comment.
 
