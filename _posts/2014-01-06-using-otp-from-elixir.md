@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Using OTP from Elixir
+image: /images/logan.png
 ---
 
 In this post we will port the TCP RPC server from [Erlang and OTP in Action](http://manning.com/logan/) to Elixir. Elixir is an exciting new language targeting the Erlang VM (BEAM). The TCP RPC server will use the OTP libraries, these are a set of battle tested libraries that allow Erlang programmers to easily create reliable production ready applications. A big part of OTP is supervision trees, we will not use them in this example but will investigate them in a future post. More indept OTP information can be found on the [Erlang site](http://www.erlang.org/doc/design_principles/des_princ.html) or in the excellent [Learn you some erlang for great good](http://learnyousomeerlang.com/what-is-otp) book.
