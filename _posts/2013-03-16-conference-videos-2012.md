@@ -1,7 +1,4 @@
 ---
-published: false
----
----
 layout: post
 title: Conference Videos 2012
 ---
