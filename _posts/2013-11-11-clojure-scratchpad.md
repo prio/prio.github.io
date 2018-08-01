@@ -68,6 +68,7 @@ again to open a repl. We can now install dependencies and use them from the repl
 
 So now that we have the basics in place we need a repl for our scratch project to start up at boot time or login time and import deps at init time. Your final project.clj file should look like the following
 
+{% highlight clojure %}
 	(defproject scratch "0.1.0-SNAPSHOT"
 	  :description "FIXME: write description"
 	  :url "http://example.com/FIXME"
@@ -78,10 +79,11 @@ So now that we have the basics in place we need a repl for our scratch project t
        	             [leiningen "2.3.3"]]
 	  :repl-options {:port 17652
    		             :init (use ''[leiningen.exec :only  (deps)])})
+{% endhighlight %}
 
 How you start a repl automatically will depend on the operating system you use. I use OS X so the easiest way I could find is to create the following Applescript, export it as an app and add it to my login items.
 
-	tell application "Terminal"
+    tell application "Terminal"
         do shell script "cd /Users/jonathan/.clojurescratch/scratch && /usr/local/bin/lein trampoline repl :headless"
     end tell
 
