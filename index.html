@@ -12,7 +12,9 @@ layout: default
         <div class="date">
           {{ post.date | date: "%B %e, %Y" }}
         </div>
-        {{ post.image }}
+        {% if post.image %} 
+          <img src="{{ site.baseurl }}{{ post.image }}">
+        {% endif %}
         
         {{ post.excerpt }}
       </div>
