@@ -20,12 +20,14 @@ See [http://www.rabbitmq.com/download.html][7] for instructions on how to instal
 
 
 | Port     | Reason                                        |
-| -------: | --------------------------------------------- |
+| ---------| ----------------------------------------------|
 | 22       | SSH access                                    | 
 | 5672     | Used to send/receive AMQP messages            |
 | 1883     | Used to send/receive MQTT messages            |
 | 15674    | Used to send/receive STOMP messages           |
 | 15672    | *Optional* Used by the web management plug-in |
+
+
 <!--
 <table>
 <thead>
