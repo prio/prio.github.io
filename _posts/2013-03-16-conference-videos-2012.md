@@ -2,7 +2,7 @@
 layout: post
 title: Conference Videos 2012
 ---
-_Posted 16/03/2013_
+{{ page.date | date: '%B %d, %Y' }}
 
 ![Conference](/images/meeting-room-business-conference-691485.jpeg)
 
