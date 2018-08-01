@@ -4,6 +4,8 @@ title: Conference Videos 2012
 ---
 _Posted 16/03/2013_
 
+![Conference](/images/meeting-room-business-conference-691485.jpeg)
+
 I wanted a list of video links to some interesting conferences so I will add them here as a reference for others.
 
 **Note:** This is was sitting around on my harddrive, published incase its of use to someone else.
