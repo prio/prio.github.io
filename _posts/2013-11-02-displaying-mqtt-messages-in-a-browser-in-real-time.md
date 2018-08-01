@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Displaying MQTT messages in a browser in real time
+image: /images/2013-11-02-comms_overview.png
 ---
 I have recently been investigating how to display MQTT messages in a web browser in real time. The MQTT server I use is [Mosquitto][3] as it is light weight and can be run on low power (ARM) devices, ideal if you want to use a Raspberry Pi as a gateway for sensors around your house. 
 
@@ -20,7 +21,7 @@ See [http://www.rabbitmq.com/download.html][7] for instructions on how to instal
 
 
 | Port     | Reason                                        |
-| ---------| ----------------------------------------------|
+| --------:| ----------------------------------------------|
 | 22       | SSH access                                    | 
 | 5672     | Used to send/receive AMQP messages            |
 | 1883     | Used to send/receive MQTT messages            |
