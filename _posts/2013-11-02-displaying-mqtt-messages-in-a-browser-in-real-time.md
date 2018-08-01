@@ -80,7 +80,7 @@ We then need to add the bridge to our config file. You can read the full details
     connection main
     address <rabbitmq-broker-url>
     topic # both 0 sensor/ sensor/jons-house/
-{% endhiglight %}
+{% endhighlight %}
 
 So, firstly we give our connection a name (every connection in a config file must have a unique name). Secondly, we tell Mosquitto the address of the broker we want it to bridge with. Thirdly, we describe how we want topics to be shared among the two brokers. The *topic* keyword is described as:
 
@@ -108,6 +108,7 @@ Now everything sent to the local ''topic/kitchen/temperature'' topic will appear
 
 Finally we need to create a simple web application to start displaying the readings in real time. First, we need to create a simple HTML page:
 
+{% highlight html %}
     <html>
     <head>
       <title>House Data</title>
@@ -126,9 +127,11 @@ Finally we need to create a simple web application to start displaying the readi
         <div id="console"></div>    
       </body>
     </html>
+{% endhighlight %}
 
 And the Javascript used to communicate with RabbitMQ, app.js:
 
+{% highlight javascript %}
     // Use SockJS
     Stomp.WebSocketClass = SockJS;
 
@@ -172,6 +175,7 @@ And the Javascript used to communicate with RabbitMQ, app.js:
         vhost
       );
     }
+{% endhighlight %}
 
 You can download stomp.js from the [Stomp Websocket github page][6].
 
