@@ -14,7 +14,7 @@ We will write a simple library with one function that takes two integers and add
 cargo init --lib rmath
 ```
 
-We add the following function to src/lib.rs and edit the test:
+We add the following function to `src/lib.rs` and edit the test:
 
 ```
 pub fn sum(a: u32, b: u32) -> u32 {
@@ -60,7 +60,7 @@ rmath = { version = "0.1.0", path = ".." }
 libc = "0.2"
 ```
 
-Now, we will create a C “friendly” function in src/lib.rs that we use to expose our sum function.
+Now, we will create a C “friendly” function in `src/lib.rs` that we use to expose our sum function.
 
 ```
 extern crate libc;
@@ -74,9 +74,9 @@ pub extern "C" fn sum(a: c_int, b: c_int) -> c_int {
 }
 ```
 
-Next build the crate and make sure it compiles. You should now have a shared library in 'target/debug/' (called librmath_c.dylib on OS X).
+Next build the crate and make sure it compiles. You should now have a shared library in `target/debug/` (called librmath_c.dylib on OS X).
 
-Now we need to use cbindgen to create a C header file. Create a new file called build.rs in the same folder as your Cargo.toml file.
+Now we need to use cbindgen to create a C header file. Create a new file called `build.rs` in the same folder as your Cargo.toml file.
 
 ```
 extern crate cbindgen;
@@ -93,7 +93,7 @@ fn main() {
 }
 ```
 
-And add 'build = "build.rs"' to the package section of your Cargo.toml file.
+And add `build = "build.rs"` to the package section of your Cargo.toml file.
 
 ```
 [package]
@@ -101,13 +101,13 @@ name = "rmath-c"
 build = "build.rs"
 ```
 
-Running cargo build again should create 'target/rmath.h'.
+Running cargo build again should create `target/rmath.h`.
 
 ### Swig
 
 Finally, we need to use Swig to create a Python binding. First install Swig using the instructions on its website.
 
-Then create a swig file called rmath.i and add the following:
+Then create a swig file called `rmath.i` and add the following:
 
 ```
 %module rmath
@@ -151,6 +151,4 @@ Type "help", "copyright", "credits" or "license" for more information.
 5
 ```
 
-Excellent. You can now package up rmath.py and _rmath.so and use your Rust library from Python.
-
-
+Excellent. You can now package up `rmath.py` and `_rmath.so` and use your Rust library from Python.
