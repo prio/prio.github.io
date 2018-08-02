@@ -5,7 +5,7 @@ title: A Custom Query Language
 
 If you recall, our [CEP processor](http://blog.jonharrington.org/a-simple-cep-processor-in-elixir/) currently forces us to write elixir code to work on our windows of data, and our current implementation stores and operates on our data in the same function.
 
-```
+{% highlight elixir %}
   def init({events, symbol}) do
     window = Window.timed(60)
     {:ok, %{symbol: symbol, events: events, window: window}}
@@ -17,25 +17,25 @@ If you recall, our [CEP processor](http://blog.jonharrington.org/a-simple-cep-pr
      GenEvent.sync_notify(state.events, {:avg, {symbol, timestamp, avg}})
      {:noreply, %{ state | window: w}}
    end
-```
+{% endhighlight %}
 
 In a typical CEP application, the storing of incoming data is invisible to the end user and the code operating on it. Also, most (all?) CEP libraries and frameworks tend to provide a SQL like query language. In another system our operation code would be written like
 
-```
+{% highlight sql %}
 insert into AverageStream
 select symbol, avg(value) as average, timestamp
 group by symbol
 from TickStream#window.length(60)
-```
+{% endhighlight %}
 
 If we squint a little we can see that the above code looks a lot like our Elixir Worker module.
 
 CEP frameworks also tend to have the concept of streams of data, your code queries the stream and operates on the values returned. Streams are also usually defined using a SQL like define statement.
 
-```
+{% highlight sql %}
 define table TickStream (symbol, timestamp, value)
 define table AverageStream (symbol, timestamp, average)
-```
+{% endhighlight %}
 
 Again, with a bit of squinting these definiations like a lot like elixir structs, so lets see what it takes to convert SQL like statements into Elixir code so we can add the same functionality to our CEP application.
 
@@ -46,17 +46,17 @@ Again, with a bit of squinting these definiations like a lot like elixir structs
 
 To turn a statement such as
 
-```
+{% highlight sql %}
 define table TickStream (symbol, timestamp, value)
-```
+{% endhighlight %}
 
 into an elixir struct
 
-```
+{% highlight elixir %}
 defmodule TickStream do
 	defstruct symbol: nil, timestamp: nil, value: nil
 end   
-```
+{% endhighlight %}
 
 we need to perform three steps, first, we need to tokenise it using leex, then we need to convert the tokens into an AST (abstract syntax tree) using yeec, and finally, we need to convert our AST to one that can be compiled by the elixir compiler.
 
@@ -187,7 +187,7 @@ In the long run the code approach gives us more flexibility so thats what I choo
 
 Create a file called transformer.ex and add a function to convert the AST structure to an elixir AST data structure.
 
-```
+{% highlight elixir %}
 defmodule Transformer do
 
   def transform({:struct, {:name, name}, {:fields, fields}}) do
@@ -201,7 +201,7 @@ defmodule Transformer do
   end
 
 end
-```
+{% endhighlight %}
 
 We can test it in a console
 

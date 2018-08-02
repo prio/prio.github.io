@@ -32,11 +32,11 @@ You are then ready to send and receive messages using the *zstr_send* and *zstr_
 
 The examples that follow are all simple enough to be run in an iex sessions. Create a new mix project and add czmq to your deps.
 
-```
+{% highlight elixir %}
   defp deps do
     [{:czmq, github: "gar1t/erlang-czmq", compile: "./configure; make"}]
   end
-```
+{% endhighlight %}
 
 As czmq is an erlang library we need to add one more file to help with interop. Create a src directory, and add the [czmq_const.erl file](https://gist.github.com/prio/0d345da03ffc8af71476) I created.
 
@@ -83,7 +83,7 @@ This is probably the pattern the majority of us are most familiar with. We have 
 
 Lets create a basic echo server. Type the following into an iex session.
 
-```
+{% highlight elixir %}
 echo = fn(echo, socket) ->
   {:ok, msg} = :czmq.zstr_recv(socket)
   IO.inspect(msg)
@@ -95,7 +95,7 @@ end
 socket = :czmq.zsocket_new(ctx, :czmq_const.zmq_rep)
 {:ok, port} = :czmq.zsocket_bind(socket, "tcp://*:5555")
 echo.(echo, socket)
-```
+{% endhighlight %}
 
 Now, open one or more iex sessions and start sending requests
 
@@ -123,7 +123,7 @@ In the past when I have required pubsub functionality I have always reached for 
 
 Our server will publish messages (an integer) over one of 4 topics a,b,c or d every second. Subscribers can subscribe to one or more topics of interest.
 
-```
+{% highlight elixir %}
 {:ok, ctx} = :czmq.start_link()
 socket = :czmq.zsocket_new(ctx, :czmq_const.zmq_pub)
 {:ok, port} = :czmq.zsocket_bind(socket, "tcp://*:5555")
@@ -133,13 +133,13 @@ Stream.interval(1_000) |> Enum.map(fn(x) ->
   IO.puts("Sending #{x} to #{topic}")
   :czmq.zstr_send(socket, "#{topic} #{x}")
 end)
-```
+{% endhighlight %}
 
 **Client session**
 
 Again, feel free to start up more than one client and have different clients subscribe to the same and different topics.
 
-```
+{% highlight elixir %}
 sub = fn(sub, socket) ->
   {:ok, msg} = :czmq.zstr_recv(socket)
   IO.puts(msg)
@@ -150,7 +150,7 @@ socket = :czmq.zsocket_new(ctx, :czmq_const.zmq_sub)
 :ok = :czmq.zsocket_connect(socket, "tcp://localhost:5555")
 :czmq.zsocket_set_subscribe(socket, "a" |> String.to_char_list)
 sub.(sub, socket)
-```
+{% endhighlight %}
 
 ### Push/Pull
 
@@ -162,18 +162,18 @@ This example creates a producer that creates a "task" with an integer payload, a
 
 **Producer session**
 
-```
+{% highlight elixir %}
 {:ok, ctx} = :czmq.start_link()
 socket = :czmq.zsocket_new(ctx, :czmq_const.zmq_push)
 {:ok, port} = :czmq.zsocket_bind(socket, "tcp://*:5555")
 Stream.interval(1_000) |> Enum.map(fn(x) -> 
   :czmq.zstr_send(socket, "#{x}")
 end)
-```
+{% endhighlight %}
 
 **Worker session**
 
-```
+{% highlight elixir %}
 work = fn(work, acc, recv_socket, send_socket) ->
   {:ok, raw} = :czmq.zstr_recv(recv_socket)
   {x, _} = Integer.parse(to_string(raw))
@@ -187,11 +187,11 @@ recv_socket = :czmq.zsocket_new(ctx, :czmq_const.zmq_pull)
 send_socket  = :czmq.zsocket_new(ctx, :czmq_const.zmq_push)
 :ok = :czmq.zsocket_connect(send_socket, "tcp://localhost:5556")
 work.(work, 0, recv_socket, send_socket)
-```
+{% endhighlight %}
 
 **Collector session**
 
-```
+{% highlight elixir %}
 collect = fn(collect, socket) ->
   {:ok, x} = :czmq.zstr_recv(socket)
   IO.puts("Total is #{x}")
@@ -201,7 +201,7 @@ end
 socket = :czmq.zsocket_new(ctx, :czmq_const.zmq_pull)
 {:ok, port} = :czmq.zsocket_bind(socket, "tcp://*:5556")
 collect.(collect, socket)
-```
+{% endhighlight %}
 
 Notice, that in each session we have to be careful to send strings over the socket and unpack them in the receiver if required. The czmq library does not support sending erlang values such as ints over sockets.
 

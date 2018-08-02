@@ -22,18 +22,18 @@ Our worker factory recieves tick events and starts a new worker process to handl
 
 **Note** You will need to add the code from a [previous blog post](http://blog.jonharrington.org/simple-sliding-windows-in-elixir/) and [timex](https://github.com/bitwalker/timex) to your dependencies. 
 
-```
+{% highlight elixir %}
   defp deps do
     [{:window, github: "prio/exwindow"},
      {:timex, github: "bitwalker/timex"}]
   end
-```
+{% endhighlight %}
 
 ### A Source
 
 Our source just generates random data to test our application so I won''t go into it in any detail. A real world source would read this data from a feed or a file (if you were doing backtesting for example). It gets passed the input GenEvent process on startup and after every "interval" period, it sends it a tick event.
 
-```
+{% highlight elixir %}
 defmodule Source do
   use GenServer
   use Timex
@@ -66,11 +66,11 @@ defmodule Source do
     {:noreply, ups}
   end
 end
-```
+{% endhighlight %}
 
 ### The Factory
 
-```
+{% highlight elixir %}
 defmodule WorkerFactory do
   use GenServer
 
@@ -85,13 +85,13 @@ defmodule WorkerFactory do
     {:noreply, events}
   end
 end
-```
+{% endhighlight %}
 
 ### The Broker
 
 Our broker is the process that will recieve tick events and decide where to send them.
 
-```
+{% highlight elixir %}
 defmodule Broker do
   use GenEvent
 
@@ -107,7 +107,7 @@ defmodule Broker do
     {:ok, factory}
   end
 end
-```
+{% endhighlight %}
 
 Our Broker recieves the factory process on start up and sends events to it if it can''t find the correct worker process.
 
@@ -115,7 +115,7 @@ Our Broker recieves the factory process on start up and sends events to it if it
 
 Our worker code, will be fairly simple. One startup it creates a new timed window, every time it recieves a raw tick it adds it to the timed window and then sends the hourly average to the ouput GenEvent process.
 
-```
+{% highlight elixir %}
 defmodule Worker do
   use GenServer
 
@@ -135,13 +135,13 @@ defmodule Worker do
      {:noreply, %{ state | window: w}}
    end
 end
-```
+{% endhighlight %}
 
 ### The Sink
 
 Like the source module, our sink module is just a simple dummy useful for development. In real life you would probably use a sink to store the data to a database or a file (or both).
 
-```
+{% highlight elixir %}
 defmodule Sink do
   use GenEvent
   use Timex
@@ -156,13 +156,13 @@ defmodule Sink do
     {:ok, factory}
   end
 end
-```
+{% endhighlight %}
 
 ### Tieing it all together
 
 Not that all our code is inplace we need to tied everything together and start our processes, we do this in our Application module.
 
-```
+{% highlight elixir %}
 defmodule Cep do
   use Application
 
@@ -185,7 +185,7 @@ defmodule Cep do
     Supervisor.start_link(children, opts)    
   end
 end
-```
+{% endhighlight %}
 
 ### Running it
 

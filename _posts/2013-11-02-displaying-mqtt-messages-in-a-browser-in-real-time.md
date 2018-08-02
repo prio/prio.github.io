@@ -28,38 +28,6 @@ See [http://www.rabbitmq.com/download.html][7] for instructions on how to instal
 | 15674    | Used to send/receive STOMP messages           |
 | 15672    | *Optional* Used by the web management plug-in |
 
-
-<!--
-<table>
-<thead>
-<tr>
-  <th align="right">Port</th>
-  <th>Reason</th>
-</tr>
-</thead>
-<tbody><tr>
-  <td align="right">22</td>
-  <td>SSH access</td>
-</tr>
-<tr>
-  <td align="right">5672</td>
-  <td>Used to send/receive AMQP messages</td>
-</tr>
-<tr>
-  <td align="right">1883</td>
-  <td>Used to send/receive MQTT messages</td>
-</tr>
-<tr>
-  <td align="right">15674</td>
-  <td>Used to send/receive STOMP messages</td>
-</tr>
-<tr>
-  <td align="right">15672</td>
-  <td><em>Optional</em> Used by the web management plug-in</td>
-</tr>
-</tbody></table>
--->
-
 Once installed we need to enable the MQTT and Web Stomp plugins. We do this by running
 
 > $ rabbitmq-plugins enable rabbitmq_mqtt

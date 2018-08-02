@@ -20,7 +20,7 @@ We will ignore most of the files generated for this post. Create a new file call
 
 Lets start by implementing the gen_server behaviour and adding some empty callback functions required by the gen_server behaviour. We will also add two functions we will use to start and stop the server. This can be used as a template for future gen_servers you write.
 
-```
+{% highlight elixir %}
 defmodule Tcprpc.Server do
   use GenServer.Behaviour
 
@@ -61,11 +61,11 @@ defmodule Tcprpc.Server do
   end
 
 end
-```
+{% endhighlight %}
 
 Lets start fleshing out this skeleton to implement our TCP RPC server. Our server will listen on a network port, it will accept an Elixir expression followed by a newline, execute the expression and return its value. First, we will implement the functions that will be our modules external API.
 
-```
+{% highlight elixir %}
   defrecord State, port: nil, lsock: nil, request_count: 0
 
   def start_link(port) do
@@ -83,13 +83,13 @@ Lets start fleshing out this skeleton to implement our TCP RPC server. Our serve
   def stop() do
     :gen_server.cast(:tcprpc, :stop)
   end
-```
+{% endhighlight %}
 
 The state record will be used to store information about our server, Elixir data structures are immutable but we can return an updated version from every function call and OTP will store it for us in between calls. start_link/0 and start_link/1 are used to start our server, start_link/0 simply delegates to start_link/1 passing in 1055 as our default port. get_count/0 is a simple wrapper around a sync message send to our server that will return the number of messages we have responded to.
 
 Now lets implement the required gen_server callbacks that we will use to set up our server.
 
-```
+{% highlight elixir %}
   def init (port) do
     { :ok, lsock } = :gen_tcp.listen(port, [{ :active, true }])
     { :ok, State.new(lsock: lsock, port: port), 0 }
@@ -99,13 +99,13 @@ Now lets implement the required gen_server callbacks that we will use to set up 
     { :ok, _sock } = :gen_tcp.accept lsock
     { :noreply, state }
   end
-```
+{% endhighlight %}
 
 init/0 is called before our server is started by OTP. Here we create a tcp socket on ''port'', add it to our state record and return it. OTP will store it and pass it to our other functions when they are called. Note the last ''0'' value we return, this is our timeout value, here we are telling OTP to timeout immediately, a timeout message will then be sent to our server. In our timeout handling code we listen on the socket for a connection. Forcing the timeout seems a bit hacky to me but apparently it is a common erlang pattern so should be well understood by other erlang/Elixir programmers.
 
 Finally we will implement the message handling functions we require.
 
-```
+{% highlight elixir %}
   def handle_call(:get_count, _from, state) do 
     { :reply, { :ok, state.request_count }, state }
   end
@@ -127,7 +127,7 @@ Finally we will implement the message handling functions we require.
       error -> :gen_tcp.send(socket, :io_lib.fwrite("~p~n", [error]))
     end
   end
-```
+{% endhighlight %}
 
 We implement a handler for our :get_count message and just return request_count field from our state record and for a :stop async message. The final two functions are where we do most of the work. When we receive data on our socket it is sent to our server "out of band" so we need to implement a handle_info/2 function to deal with this. We call do_rpc/2 passing in the string we received over the socket and then respond updating the request_count field of our state. In do_rpc we eval the string and write the response to the socket.
 
