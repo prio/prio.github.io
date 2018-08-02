@@ -3,7 +3,7 @@ layout: post
 title: Rust and Swig
 ---
 
-For a personal project I am working on I wanted to create Python bindings to a Rust library I am creating. The first port of call was [Milksnake][1] and I wrote a Python wrapper to make it nicer to consume. However, a few weeks later I wanted wrappers for a few more languages and rather than create each one individually I decided to see if I could use a tried and trusted tool like Swig. What follows is a short tutorial on how to use Swig to create bindings for a rust library.
+For a personal project I am working on I wanted to create Python bindings to a Rust library I am creating. The first port of call was [Milksnake][1] and I wrote a Python wrapper to make it nicer to consume. However, a few weeks later I wanted wrappers for a few more languages and rather than create each one individually I decided to see if I could use a tried and tRusted tool like [Swig][2]. What follows is a short tutorial on how to use Swig to create bindings for a Rust library.
 
 ## The rmath library
 
@@ -15,7 +15,7 @@ cargo init --lib rmath
 
 We add the following function to `src/lib.rs` and edit the test:
 
-{% highlight rust %}
+{% highlight Rust %}
 pub fn sum(a: u32, b: u32) -> u32 {
   a + b
 }
@@ -36,7 +36,7 @@ And now run cargo test to make sure it all works.
 
 ### The rmath C library
 
-Now we need to expose this as a C API. We could edit our sum function so it is C compatible but it would make usage from rust awkward. We could also just add another function to this crate that exposes a C compatible version but if you are creating a real library a nicer way to do it is to create a new crate that contains the C api.
+Now we need to expose this as a C API. We could edit our sum function so it is C compatible but it would make usage from Rust awkward. We could also just add another function to this crate that exposes a C compatible version but if you are creating a real library a nicer way to do it is to create a new crate that contains the C api.
 
 Run
 
@@ -61,7 +61,7 @@ libc = "0.2"
 
 Now, we will create a C “friendly” function in `src/lib.rs` that we use to expose our sum function.
 
-{% highlight rust %}
+{% highlight Rust %}
 extern crate libc;
 extern crate rmath;
 
@@ -77,7 +77,7 @@ Next build the crate and make sure it compiles. You should now have a shared lib
 
 Now we need to use cbindgen to create a C header file. Create a new file called `build.rs` in the same folder as your Cargo.toml file.
 
-{% highlight rust %}
+{% highlight Rust %}
 extern crate cbindgen;
 
 use std::env;
@@ -151,7 +151,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 5
 {% endhighlight %}
 
-Excellent. You can now package up `rmath.py` and `_rmath.so` and use your rust library from Python.
+Excellent. You can now package up `rmath.py` and `_rmath.so` and use your Rust library from Python.
 
 Finally, we will use the same swig file to create r bindings.
 
@@ -177,13 +177,13 @@ Type 'q()' to quit R.
 [1] 187
 {% endhighlight %}
 
-we can use the same rust function.
+we can use the same Rust function.
 
 ### Conclusion
 
-Rust is a very promising language and as we have seen, using mature tools such as Swig it is very easy to tip your toe in the water and start including rust libraries in your existing Python and r projects where you may need a perfromance boast or wish to take advantage of rusts type safety and [fearless concurrency][3]. The full project can be downloaded from [github][4].
+Rust is a very promising language and as we have seen, using mature tools such as Swig it is very easy to tip your toe in the water and start including Rust libraries in your existing Python and r projects where you may need a perfromance boast or wish to take advantage of Rusts type safety and [fearless concurrency][3]. The full project can be downloaded from [github][4].
 
 [1]: https://github.com/getsentry/milksnake "Milksnake"
 [2]: http://swig.org/ "SWIG"
-[3]: https://blog.rust-lang.org/2015/04/10/Fearless-Concurrency.html "Fearless Concurrency"
+[3]: https://blog.Rust-lang.org/2015/04/10/Fearless-Concurrency.html "Fearless Concurrency"
 [4]: https://github.com/prio/rmath "rmath github repo"
