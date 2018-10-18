@@ -2,7 +2,7 @@
 ​---
 layout: post
 title: Please fix your dependencies
-image: /images/scream.jpg
+image: /images/scream.jpeg
 ​---
 ---
 
