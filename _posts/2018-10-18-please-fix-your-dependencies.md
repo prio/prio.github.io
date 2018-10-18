@@ -1,12 +1,10 @@
----
 ​---
 layout: post
 title: Please fix your dependencies
 image: /images/scream.jpeg
 ​---
----
 
-# Please use fixed versions for your (application) dependencies
+Please use fixed versions for your (application) dependencies
 
 When I was in university we were taught all about software components. "Object orientation has failed us when it comes to re-use" we were told, "they were too fine grained, components are the solution".
 
