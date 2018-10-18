@@ -1,9 +1,7 @@
 ---
-​---
 layout: post
 title: European Institutions
 image: /images/europe.jpeg
-​---
 ---
 
 # European Institutions

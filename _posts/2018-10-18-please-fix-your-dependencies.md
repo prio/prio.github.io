@@ -1,8 +1,8 @@
-​---
+---
 layout: post
 title: Please fix your dependencies
 image: /images/scream.jpeg
-​---
+---
 
 Please use fixed versions for your (application) dependencies
 
