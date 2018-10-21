@@ -4,8 +4,6 @@ title: European Institutions
 image: /images/europe.jpeg
 ---
 
-# European Institutions
-
 With European elections just around the corner it is with some embarrassment I admit I am far more knowledgeable about US institutions and political parties than I am about the European Union equivalents. I have decided to rectify this in a blog post that I hope will take some of the mystique out of the machinations of the EU. 
 
 # Non EU Institutions
