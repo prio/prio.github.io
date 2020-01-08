@@ -15,7 +15,10 @@ layout: default
         {% if post.image %} 
           <img width="640px" src="{{ site.baseurl }}{{ post.image }}">
         {% endif %}
-        
+        {% if post.caption %} 
+          <p class="caption">{{ post.caption }}</p>
+        {% endif %}
+
         {{ post.excerpt }}
       </div>
 
