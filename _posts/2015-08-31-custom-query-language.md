@@ -4,6 +4,7 @@ title: A Custom Query Language
 ---
 
 If you recall, our [CEP processor](http://blog.jonharrington.org/a-simple-cep-processor-in-elixir/) currently forces us to write elixir code to work on our windows of data, and our current implementation stores and operates on our data in the same function.
+<!--excerpt-->
 
 {% highlight elixir %}
   def init({events, symbol}) do

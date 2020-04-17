@@ -5,6 +5,7 @@ image: /images/rust.jpeg
 ---
 
 For a personal project I am working on I wanted to create Python bindings to a Rust library I am creating. The first port of call was [Milksnake][1] and I wrote a Python wrapper to make it nicer to consume. However, a few weeks later I wanted wrappers for a few more languages and rather than create each one individually I decided to see if I could use a tried and trusted tool like [Swig][2]. What follows is a short tutorial on how to use Swig to create bindings for a Rust library.
+<!--excerpt-->
 
 ## The rmath library
 

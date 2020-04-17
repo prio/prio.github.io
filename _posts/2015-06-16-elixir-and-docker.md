@@ -4,6 +4,7 @@ title: Elixir, Docker and PG2
 ---
 
 Over the next few posts I plan to look at ways of making the [CEP processor](http://blog.jonharrington.org/a-simple-cep-processor-in-elixir/) created in the [last post](http://blog.jonharrington.org/a-simple-cep-processor-in-elixir/) distributed. But, before that, I want to take a short diversion and jot down some notes on how to set up Elixir in a docker container and have nodes, running in seperatate containers, communicate with each other.
+<!--excerpt-->
 
 ## Create your own image (optional)
 

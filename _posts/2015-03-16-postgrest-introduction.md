@@ -4,6 +4,7 @@ title: PostGrest Introduction
 ---
 
 I recently came across an interesting project called [PostgREST][postgrestws], an application that claimed to read the database schema of you''r PostgreSQL database and automatically create a "a cleaner, more standards-compliant, faster API than you are likely to write from scratch."
+<!--excerpt-->
 
 # Setup
 

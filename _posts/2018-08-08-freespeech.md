@@ -5,6 +5,7 @@ image: /images/freespeech.jpg
 ---
 
 I can't say I was upset to hear about Alex Jones recent removal from social media and podcast platforms. The man is a steaming pile of garbage and I have zero sympathy for him. However, after a discussion with friends and some conversations on twitter I started thinking about my own position on censorship and what I believe is acceptable speech.
+<!--excerpt-->
 
 I am Irish. The US has the first amendment to its constituent ensuring a persons right to free speech, in Ireland free speech is protected by Article 40.6.1 of our constitution with the caveat it may not be used to undermine "public order or morality or the authority of the State". We have a ridiculous blasphemy law on our books due to this. Some European countries go further and have laws prohibiting certain types of speech. Hate speech and incitement to violence is banned in the UK for example, and holocaust denial is banned in France and Germany. So Europe  does not have the same culture of absolute free speech as the USA. But what about me? Am I a free speech absolutist or do I have a more nuanced European attitude? Is removing Infowars from the biggest online platforms a slippery slope? Should I rally to defend his right to free speech even though I detest what he has done to the families of Sandy Hook with every fibre of my being.
 

@@ -5,6 +5,7 @@ image: /images/GenEventCEP.png
 ---
 
 [CEP](http://en.wikipedia.org/wiki/Complex_event_processing) is the term used to describe systems that process streams of events. In this post, we will use the the data structures created in a [previous post](http://blog.jonharrington.org/simple-sliding-windows-in-elixir/) and a GenEvent server to create a simple CEP processor in Elixir.
+<!--excerpt-->
 
 ### Introduction
 

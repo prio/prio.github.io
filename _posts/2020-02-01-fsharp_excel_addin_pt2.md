@@ -5,6 +5,7 @@ image: /images/black-samsung-tablet-computer-106344.jpg
 ---
 
 This post follows on from the [previous post](https://blog.jonharrington.org/fsharp_excel_addin/), extending the Add-In with a UI.
+<!--excerpt-->
 
 # Excel UI Extensions
 

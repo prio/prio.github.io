@@ -4,6 +4,7 @@ title: Clojure-py lite
 ---
 
 I have been tracking the progress of [clojure-py][1] on and off for the past two years or so but unfortunately it has officially been [dropped by its current maintainer][2]. I know node.js and Clojurescript are Clojures "de-facto" scripting solution but I am more familiar with the Python ecosystem so I was looking forward to being able to use the libraries I know with Clojure. However, on the clojure-py mailing list [Hy][3] was mentioned as a possible alternative so I decided to take a look at Hy and see how close we can get to a Clojure "like" environment on cPython. _Note:_ I am not suggesting anyone use this setup for serious systems, its just a fun exercise.
+<!--excerpt-->
 
 ## Clojure features
 

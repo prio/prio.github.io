@@ -5,6 +5,7 @@ image: /images/chart-close-up-data-desk.jpg
 ---
 
 This is a post is based on information found in various repos and wiki pages on Github but I felt it was worth putting it all together along with some screenshots of Visual Studio 2019 for someone starting out in the .NET ecosystem.
+<!--excerpt-->
 
 # Introduction
 

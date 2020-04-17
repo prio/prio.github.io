@@ -5,6 +5,7 @@ image: /images/scream.jpeg
 ---
 
 Please use fixed versions for your application dependencies.
+<!--excerpt-->
 
 While at university our lecturers spoke at length about software components. "Object orientation has failed us when it comes to re-use" we were told, "objects are too fine grained, too specific, components are the solution".
 

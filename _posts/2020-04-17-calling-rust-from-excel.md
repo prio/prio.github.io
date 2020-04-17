@@ -5,6 +5,7 @@ image: /images/person-writing-on-notebook-669615.jpg
 ---
 
 This post is part of a series on interfacing Excel with various programming languages.
+<!--excerpt-->
 
 # Excel
 

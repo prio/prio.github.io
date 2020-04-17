@@ -5,6 +5,7 @@ image: /images/pair.jpg
 ---
 
 ZeroMQ is an excellent, language agnostic messaging and concurrency library. It can be used to provide non-BEAM based languages with some (but not all!) of the features that we take for granted when writing code in Elixir on the erlang vm. For this post, we will focus on its capabilities as a messaging library. This post gives a brief overview of ZeroMQ but you really should read the excellent [ZeroMQ guide](http://zguide.zeromq.org/page:all) to gain a more complete understanding.
+<!--excerpt-->
 
 ## Sockets
 
