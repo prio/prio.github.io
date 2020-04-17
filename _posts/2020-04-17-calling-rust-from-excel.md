@@ -3,6 +3,9 @@ layout: post
 title: Calling Rust from Excel
 image: /images/person-writing-on-notebook-669615.jpg
 ---
+
+This post is part of a series on interfacing Excel with various programming languages.
+
 # Excel
 
 Excel is a tool that appears to be as loved as it is hated. Personally, I think its a fantastic tool, however its main benefits (easy to pick up and understand) also mean it is often used for tasks when it is no longer suitable, I have heard many a horror story of files taking minutes to load and requiring hours of pain staking checks just to make simple change due to their complexity.
