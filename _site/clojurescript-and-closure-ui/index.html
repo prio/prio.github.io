@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!-- Document Settings -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Base Meta -->
+    <!-- dynamically fixing the title for tag/author pages -->
+
+
+
+    <title>Clojurescript and Closure UI Tutorial</title>
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Styles'n'Scripts -->
+    <link rel="stylesheet" type="text/css" href="/assets/built/screen.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/built/screen.edited.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/built/syntax.css" />
+    <!-- highlight.js -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <style>.hljs { background: none; }</style>
+
+    <!--[if IE]>
+        <style>
+            p, ol, ul{
+                width: 100%;
+            }
+            blockquote{
+                width: 100%;
+            }
+        </style>
+    <![endif]-->
+    
+    <!-- This tag outputs SEO meta+structured data and other important settings -->
+    <meta name="description" content="Just my thoughts, right or wrong" />
+    <link rel="shortcut icon" href="http://localhost:5657/assets/images/favicon.png" type="image/png" />
+    <link rel="canonical" href="http://localhost:5657/clojurescript-and-closure-ui/" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+
+     <!--title below is coming from _includes/dynamic_title-->
+    <meta property="og:site_name" content="Jonathan Harrington" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Clojurescript and Closure UI Tutorial" />
+    <meta property="og:description" content="Just my thoughts, right or wrong" />
+    <meta property="og:url" content="http://localhost:5657/clojurescript-and-closure-ui/" />
+    <meta property="og:image" content="http://localhost:5657/images/clojurescript.png" />
+    <meta property="article:publisher" content="https://www.facebook.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Clojurescript and Closure UI Tutorial" />
+    <meta name="twitter:description" content="Just my thoughts, right or wrong" />
+    <meta name="twitter:url" content="http://localhost:5657/" />
+    <meta name="twitter:image" content="http://localhost:5657/images/clojurescript.png" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Jonathan Harrington" />
+    <meta name="twitter:site" content="@jonathanharring" />
+    <meta name="twitter:creator" content="@jonathanharring" />
+    <meta property="og:image:width" content="2000" />
+    <meta property="og:image:height" content="666" />
+
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Website",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Jonathan Harrington",
+        "logo": "http://localhost:5657/"
+    },
+    "url": "http://localhost:5657/clojurescript-and-closure-ui/",
+    "image": {
+        "@type": "ImageObject",
+        "url": "http://localhost:5657/images/clojurescript.png",
+        "width": 2000,
+        "height": 666
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:5657/clojurescript-and-closure-ui/"
+    },
+    "description": "Just my thoughts, right or wrong"
+}
+    </script>
+
+    <!-- <script type="text/javascript" src="https://demo.ghost.io/public/ghost-sdk.min.js?v=724281a32e"></script>
+    <script type="text/javascript">
+    ghost.init({
+    	clientId: "ghost-frontend",
+    	clientSecret: "f84a07a72b17"
+    });
+    </script> -->
+
+    <meta name="generator" content="Jekyll 3.6.2" />
+    <link rel="alternate" type="application/rss+xml" title="Clojurescript and Closure UI Tutorial" href="/feed.xml" />
+
+
+</head>
+<body class="post-template">
+
+    <div class="site-wrapper">
+        <!-- All the main content gets inserted here, index.hbs, post.hbs, etc -->
+        <!-- default -->
+
+<!-- The tag above means: insert everything in this file
+into the {body} of the default.hbs template -->
+
+<header class="site-header outer">
+    <div class="inner">
+        <nav class="site-nav">
+    <div class="site-nav-left">
+        
+            
+                <a class="site-nav-logo" href="http://localhost:5657/">Jonathan Harrington</a>
+            
+        
+        
+            <ul class="nav" role="menu">
+    <li class="nav-home" role="menuitem"><a href="/">Home</a></li>
+    <li class="nav-about" role="menuitem"><a href="/about/">About</a></li>
+</ul>
+
+        
+    </div>
+    <div class="site-nav-right">
+        <div class="social-links">
+            
+                <a class="social-link social-link-tgh" href="https://github.com/prio" target="_blank" rel="noopener"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub icon</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+            
+            
+                <a class="social-link social-link-tli" href="https://www.linkedin.com/in/jnharrington" target="_blank" rel="noopener"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>LinkedIn icon</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+                                    
+            
+                <a class="social-link social-link-tw" href="https://twitter.com/jonathanharring" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
+</a>
+            
+        </div>
+        
+    </div>
+</nav>
+
+    </div>
+</header>
+
+<!-- Everything inside the #post tags pulls data from the post -->
+<!-- #post -->
+
+<main id="site-main" class="site-main outer" role="main">
+    <div class="inner">
+
+        <article class="post-full  post ">
+
+            <header class="post-full-header">
+                <section class="post-full-meta">
+                    <time class="post-full-meta-date" datetime=" 9 December 2013"> 9 December 2013</time>
+                    
+                </section>
+                <h1 class="post-full-title">Clojurescript and Closure UI Tutorial</h1>
+            </header>
+
+            
+            <figure class="post-full-image" style="background-image: url(/images/clojurescript.png)">
+            </figure>
+            
+
+            <section class="post-full-content">
+                <div class="kg-card-markdown">
+                    <p>I am researching the available Clojure options for web and front end development at the moment and plan to create a series of posts that document what I learn as I go. This post will be an introduction to using the Google Closure libraries with Clojurescript. It assumes some basic familiarity with Clojurescript.
+<!--excerpt--></p>
+
+<p>The Google Closure library and tools are interesting pieces of engineering in their own right, and well worth further investigation. Also, the fact Clojurescript is built on top of Closure does have implications for Clojurescript programmers. I may cover some of these implications in future tutorials, but first lets just create our first working Clojurescript application.</p>
+
+<h2 id="getting-started">Getting started</h2>
+
+<p>First we will start off with a boring hello world example, then we will port the <a href="https://developers.google.com/closure/library/docs/tutorial?csw=1" title="Notepad tutorial">Google notepad example</a> to Clojurescript. Our first pass will use the standard Google Closure API. We will then add the <a href="https://github.com/Prismatic/dommy" title="Prismatic Dommy library">Dommy</a> library from Prismatic to make our code more idiomatic. Lets start off by creating a new project using the <a href="https://github.com/swannodette/mies" title="Mies Leiningen template">mies leiningen template</a></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ lein new mies notepad
+</code></pre></div></div>
+
+<p>This generates a folder and files similar to a standard Clojure project, but this time our project is set up for Clojurescript development. Open a terminal in the project directory and run</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ lein cljsbuild auto
+</code></pre></div></div>
+
+<p>This will take some time to finish the first time it is run (approx. 20 seconds on my 2011 Macbook Air) but it runs almost instantaneously after that. If you now open index.html in a browser and check the JavaScript console you should see “Hello world!” printed there.</p>
+
+<p><img src="/images/2013-11-17-hw_screenshot.png" alt="Hello World Screen shot" /></p>
+
+<h2 id="first-pass-at-notepad-example">First pass at Notepad example</h2>
+
+<p>Next, lets start translating the Notepad JavaScript example to Clojurescript. Its a visually fairly unimpressive example but it does cover the basics and we can build on it in future if required.</p>
+
+<p><img src="/images/2013-11-17-notepad_screenshot.png" alt="The finished notepad" /></p>
+
+<p>First, lets add the HTML we need to index.html. We need to add a div with and id of <em>notes</em> and we are also going to use the same main function written in JavaScript that the Closure tutorial uses. We could rewrite this in Clojurescript but I think it is interesting to see how to call Clojurescript code from JavaScript. Clojurescripts great interoperability allows you to introduce Clojurescript code to an existing JavaScript code base gradually. Our index.html page should now contain</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"notes"</span><span class="nt">&gt;&lt;/div&gt;</span>
+      <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"out/goog/base.js"</span> <span class="na">type=</span><span class="s">"text/javascript"</span><span class="nt">&gt;&lt;/script&gt;</span>
+      <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"notepad.js"</span> <span class="na">type=</span><span class="s">"text/javascript"</span><span class="nt">&gt;&lt;/script&gt;</span>
+      <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span><span class="nt">&gt;</span><span class="nx">goog</span><span class="p">.</span><span class="nx">require</span><span class="p">(</span><span class="s2">"notepad.core"</span><span class="p">);</span><span class="nt">&lt;/script&gt;</span>
+      <span class="nt">&lt;script&gt;</span>
+        <span class="kd">function</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+          <span class="kd">var</span> <span class="nx">noteData</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s1">''</span><span class="nx">title</span><span class="s1">''</span><span class="p">:</span> <span class="s1">''</span><span class="nx">Note</span> <span class="mi">1</span><span class="s1">''</span><span class="p">,</span> <span class="s1">''</span><span class="nx">content</span><span class="s1">''</span><span class="p">:</span> <span class="s1">''</span><span class="nx">Content</span> <span class="k">of</span> <span class="nx">Note</span> <span class="mi">1</span><span class="s1">''</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">''</span><span class="nx">title</span><span class="s1">''</span><span class="p">:</span> <span class="s1">''</span><span class="nx">Note</span> <span class="mi">2</span><span class="s1">''</span><span class="p">,</span> <span class="s1">''</span><span class="nx">content</span><span class="s1">''</span><span class="p">:</span> <span class="s1">''</span><span class="nx">Content</span> <span class="k">of</span> <span class="nx">Note</span> <span class="mi">2</span><span class="s1">''</span><span class="p">}];</span>
+
+          <span class="kd">var</span> <span class="nx">noteListElement</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">''</span><span class="nx">notes</span><span class="s1">''</span><span class="p">);</span>
+          <span class="kd">var</span> <span class="nx">notes</span> <span class="o">=</span> <span class="nx">notepad</span><span class="p">.</span><span class="nx">core</span><span class="p">.</span><span class="nx">makeNotes</span><span class="p">(</span><span class="nx">noteData</span><span class="p">,</span> <span class="nx">noteListElement</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="nx">main</span><span class="p">();</span>
+    <span class="nt">&lt;/script&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<p>OK, now lets get to work on the Clojurescript code. Open core.cljs and modify the namespace declaration to include <em>goog.dom</em> and <em>goog.ui</em> as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(ns notepad.core
+    (:require [goog.dom :as dom])
+    (:import [goog.ui Zippy]))
+</code></pre></div></div>
+
+<p>Next we will create the <em>makeNotes</em> function the JavaScript code expects. We nee to add the <em>export</em> metadata tag to this function to make it callable from JavaScript (this is due to the Closure compiler).</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defn ^:export makeNotes [notes]
+    (.log js/console notes))
+</code></pre></div></div>
+
+<p>When we refresh index.html we should now see the JavaScript object
+containing our notes printed to the console.</p>
+
+<p><img src="/images/2013-11-17-notepad_screenshot1.png" alt="Notepad Screen shot" /></p>
+
+<p>Great, everything is wired up correctly. The Closure tutorial creates a Note function that converts an item in the notes dictionary into a notes object, lets do something similar in Clojurescript. First we will convert the JavaScript <em>note</em> object into a Clojurescript map using the <em>js-&gt;clj</em> function form clojure.core, then we will change it to use keywords and finally add the parent element to it.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defn create-note [item el]
+    (let [data (js-&gt;clj item)]
+        {:title (data "title") :content (data "content") :parent el}))
+</code></pre></div></div>
+
+<p>Converting the map to use keywords is necessary, but it allows us to create more idiomatic code. Next we translate the Closure makeNoteDom to Clojurescript</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defn make-note-dom [note]
+    (let [header-el (dom/createDom "div"
+                                   (clj-&gt;js {"style" "background-color:#EEE"})
+                                   (:title note))
+          content-el (dom/createDom "div" nil (:content note))
+          new-note (dom/createDom "div" nil header-el content-el)]
+      (dom/append (:parent note) new-note)
+      (Zippy. header-el content-el)))
+</code></pre></div></div>
+
+<p>And finally, we need to tie it all together. Modify <em>makeNotes</em> so it looks like the following.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defn ^:export makeNotes [notes container]
+    (doseq [note notes]
+        (make-note-dom (create-note note container))))
+</code></pre></div></div>
+
+<p>Now, when you refresh index.html you should see two <em>zippies</em> and clicking on the titles should show and hide the contents of the notes.</p>
+
+<p>The full core.cljs file:</p>
+
+<script src="https://gist.github.com/prio/7528880.js?file=notepad.cljs"></script>
+
+<h2 id="using-dommy">Using Dommy</h2>
+
+<p><a href="https://github.com/Prismatic/dommy" title="Prismatic Dommy library">Dommy</a> is a library created by Prismatic that lets us perform more
+idiomatic templating and dom manipulation using Clojurescript. Add</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[prismatic/dommy "0.1.1"]
+</code></pre></div></div>
+
+<p>to our projects dependencies and run</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ lein deps
+</code></pre></div></div>
+
+<p>To download it. Then restart the lein cljsbuild plugin to pick it up</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ lein cljsbuild auto
+</code></pre></div></div>
+
+<p>Next, we can remove <em>goog.dom</em> and add some dommy imports to our
+namespace declaration</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(ns notepad.core
+    (:require [dommy.utils :as utils]
+              [dommy.core :as dommy])
+    (:use-macros [dommy.macros :only [node deftemplate]])
+    (:import [goog.ui Zippy]))
+</code></pre></div></div>
+
+<p>Now we will modify our existing code to use dommy. <em>create-note</em>
+and <em>makeNotes</em> don’‘t do any dom manipulation, so they remain
+unchanged. First, lets create two templates for our note header and
+note content elements and a function to tie them together:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(deftemplate note-header [title]
+    [:div {:style {:background-color "#EEE"}} title])
+
+(deftemplate note-content [content]
+    [:div content])
+
+(defn note-element [header content]
+    (node [:div header content]))
+</code></pre></div></div>
+
+<p>Here we can see one of Clojurescripts strengths come into play,
+data. In our previous version we were passing strings into functions
+to generate templates, now we can pass in data structures and
+let dommy convert them to html nodes for use. Another advantage is
+that <em>deftemplate</em> and <em>node</em> are macros, not functions, this means
+the conversion can be carried out at compile time rather than runtime,
+giving us better performance as well as cleaner code. The Prismatic
+team have created a blog <a href="http://blog.getprismatic.com/blog/2013/4/29/faster-better-dom-manipulation-with-dommy-and-clojurescript" title="Blog">post</a> about this. Now, we can update
+<em>make-note-dom</em> to use our new templates.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defn make-note-dom [note]
+    (let [header-el (note-header (:title note))
+          content-el (note-content (:content note))]
+      (dommy/append! (:parent note) (note-element header-el content-el))
+      (Zippy. header-el content-el)))
+</code></pre></div></div>
+
+<p>The full core.cljs file:</p>
+
+<script src="https://gist.github.com/prio/7528880.js?file=notepad-with-dommy.cljs"></script>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>Hopefully by now you have seen it is fairly easy to get started
+ creating Clojurescript applications using the Closure and third party
+ libraries. I hope I have also shown some of the advantages of using
+ Clojurescript: more declarative code and potential performance
+ improvements.</p>
+
+
+                </div>
+            </section>
+
+            <!-- Email subscribe form at the bottom of the page -->
+            
+
+            <footer class="post-full-footer">
+                <!-- Everything inside the #author tags pulls data from the author -->
+                <!-- #author-->
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <!-- /author  -->
+            </footer>
+
+            <!-- If you use Disqus comments, just uncomment this block.
+            The only thing you need to change is "test-apkdzgmqhj" - which
+            should be replaced with your own Disqus site-id. -->
+            
+                <section class="post-full-comments">
+                    <div id="disqus_thread"></div>
+                    <script>
+                        var disqus_config = function () {
+                            this.page.url = 'http://localhost:5657/clojurescript-and-closure-ui/';
+                            this.page.identifier = '/clojurescript-and-closure-ui';
+                            this.page.title = 'Clojurescript and Closure UI Tutorial';
+                        };
+                        (function() {
+                            var d = document, s = d.createElement('script');
+                            s.src = 'https://magpietech.disqus.com/embed.js';
+                            s.setAttribute('data-timestamp', +new Date());
+                            (d.head || d.body).appendChild(s);
+                        })();
+                    </script>
+                </section>
+            
+
+        </article>
+
+    </div>
+
+
+<div class="comments">
+	<div id="disqus_thread"></div>
+	<script type="text/javascript">
+
+	    var disqus_shortname = 'true';
+
+	    (function() {
+	        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	    })();
+
+	</script>
+	<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+
+</main>
+
+<!-- Links to Previous/Next posts -->
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+            
+
+            <!-- If there's a next post, display it using the same markup included from - partials/post-card.hbs -->
+            
+                
+
+    <article class="post-card post-template">
+        
+            <a class="post-card-image-link" href="/using-otp-from-elixir/">
+                <div class="post-card-image" style="background-image: url(/images/logan.jpeg)"></div>
+            </a>
+        
+        <div class="post-card-content">
+            <a class="post-card-content-link" href="/using-otp-from-elixir/">
+                <header class="post-card-header">
+                    
+
+                    <h2 class="post-card-title">Using OTP from Elixir</h2>
+                </header>
+                <section class="post-card-excerpt">
+                    
+                        <p></p>
+                    
+                </section>
+            </a>
+            <footer class="post-card-meta">
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <span class="reading-time">
+                    
+                    
+                      1 min read
+                    
+                </span>
+            </footer>
+        </div>
+    </article>
+
+            
+
+            <!-- If there's a previous post, display it using the same markup included from - partials/post-card.hbs -->
+            
+                
+
+    <article class="post-card post-template">
+        
+            <a class="post-card-image-link" href="/clojure-python-lite/">
+                <div class="post-card-image" style="background-image: url(/images/clojure-py.jpg)"></div>
+            </a>
+        
+        <div class="post-card-content">
+            <a class="post-card-content-link" href="/clojure-python-lite/">
+                <header class="post-card-header">
+                    
+
+                    <h2 class="post-card-title">Clojure-py lite</h2>
+                </header>
+                <section class="post-card-excerpt">
+                    
+                        <p></p>
+                    
+                </section>
+            </a>
+            <footer class="post-card-meta">
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <span class="reading-time">
+                    
+                    
+                      1 min read
+                    
+                </span>
+            </footer>
+        </div>
+    </article>
+
+            
+
+        </div>
+    </div>
+</aside>
+
+<!-- Floating header which appears on-scroll, included from includes/floating-header.hbs -->
+<div class="floating-header">
+    <div class="floating-header-logo">
+        <a href="http://localhost:5657/">
+            
+                <img src="/assets/images/favicon.png" alt="Jonathan Harrington icon" />
+            
+            <span>Jonathan Harrington</span>
+        </a>
+    </div>
+    <span class="floating-header-divider">&mdash;</span>
+    <div class="floating-header-title">Clojurescript and Closure UI Tutorial</div>
+    <div class="floating-header-share">
+        <div class="floating-header-share-label">Share this <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M7.5 15.5V4a1.5 1.5 0 1 1 3 0v4.5h2a1 1 0 0 1 1 1h2a1 1 0 0 1 1 1H18a1.5 1.5 0 0 1 1.5 1.5v3.099c0 .929-.13 1.854-.385 2.748L17.5 23.5h-9c-1.5-2-5.417-8.673-5.417-8.673a1.2 1.2 0 0 1 1.76-1.605L7.5 15.5zm6-6v2m-3-3.5v3.5m6-1v2"/>
+</svg>
+</div>
+        <a class="floating-header-share-tw" href="https://twitter.com/share?text=Clojurescript+and+Closure+UI+Tutorial&amp;url=https://blog.jonharrington.org/clojurescript-and-closure-ui/"
+            onclick="window.open(this.href, 'share-twitter', 'width=550,height=235');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
+
+        </a>
+        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=https://blog.jonharrington.org/clojurescript-and-closure-ui/"
+            onclick="window.open(this.href, 'share-facebook','width=580,height=296');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"/></svg>
+
+        </a>
+    </div>
+    <progress class="progress" value="0">
+        <div class="progress-container">
+            <span class="progress-bar"></span>
+        </div>
+    </progress>
+</div>
+
+
+<!-- /post -->
+
+<!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs -->
+
+
+        <!-- Previous/next page links - displayed on every page -->
+        
+
+        <!-- The footer at the very bottom of the screen -->
+        <footer class="site-footer outer">
+            <div class="site-footer-content inner">
+                <section class="copyright"><a href="http://localhost:5657/">Jonathan Harrington</a> &copy; 2020</section>
+                <section class="poweredby">Proudly published with <a href="https://jekyllrb.com/">Jekyll</a> &
+                    <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a> using
+                    <a href="https://github.com/jekyller/jasper2" target="_blank" rel="noopener">Jasper2</a></section>
+                <nav class="site-footer-nav">
+                    <a href="/">Latest Posts</a>
+                    <a href="https://github.com/prio" target="_blank" rel="noopener">Github</a>
+                    <a href="https://www.linkedin.com/in/jnharrington" target="_blank" rel="noopener">Linkedin</a>
+                    <a href="https://twitter.com/jonathanharring" target="_blank" rel="noopener">Twitter</a>
+                </nav>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- The big email subscribe modal content -->
+    
+
+    <!-- highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.10.0/components/prism-abap.min.js"></script>
+    <script>$(document).ready(function() {
+      $('pre code').each(function(i, block) {
+        hljs.highlightBlock(block);
+      });
+    });</script>
+
+    <!-- jQuery + Fitvids, which makes all video embeds responsive -->
+    <script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" src="/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://demo.ghost.io/assets/js/jquery.fitvids.js?v=724281a32e"></script>
+
+
+    <!-- Paginator increased to "infinit" in _config.yml -->
+    <!-- if paginator.posts  -->
+    <!-- <script>
+        var maxPages = parseInt('');
+    </script>
+    <script src="/assets/js/infinitescroll.js"></script> -->
+    <!-- /endif -->
+
+    
+
+
+    <!-- Add Google Analytics  -->
+    <!-- Google Analytics Tracking code -->
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+
+ </script>
+
+
+    <!-- The #block helper will pull in data from the #contentFor other template files. In this case, there's some JavaScript which we only want to use in post.hbs, but it needs to be included down here, after jQuery has already loaded. -->
+    
+        <script>
+
+// NOTE: Scroll performance is poor in Safari
+// - this appears to be due to the events firing much more slowly in Safari.
+//   Dropping the scroll event and using only a raf loop results in smoother
+//   scrolling but continuous processing even when not scrolling
+$(document).ready(function () {
+    // Start fitVids
+    var $postContent = $(".post-full-content");
+    $postContent.fitVids();
+    // End fitVids
+
+    var progressBar = document.querySelector('progress');
+    var header = document.querySelector('.floating-header');
+    var title = document.querySelector('.post-full-title');
+
+    var lastScrollY = window.scrollY;
+    var lastWindowHeight = window.innerHeight;
+    var lastDocumentHeight = $(document).height();
+    var ticking = false;
+
+    function onScroll() {
+        lastScrollY = window.scrollY;
+        requestTick();
+    }
+
+    function onResize() {
+        lastWindowHeight = window.innerHeight;
+        lastDocumentHeight = $(document).height();
+        requestTick();
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(update);
+        }
+        ticking = true;
+    }
+
+    function update() {
+        var trigger = title.getBoundingClientRect().top + window.scrollY;
+        var triggerOffset = title.offsetHeight + 35;
+        var progressMax = lastDocumentHeight - lastWindowHeight;
+
+        // show/hide floating header
+        if (lastScrollY >= trigger + triggerOffset) {
+            header.classList.add('floating-active');
+        } else {
+            header.classList.remove('floating-active');
+        }
+
+        progressBar.setAttribute('max', progressMax);
+        progressBar.setAttribute('value', lastScrollY);
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('resize', onResize, false);
+
+    update();
+});
+</script>
+
+    
+
+    <!-- Ghost outputs important scripts and data with this tag - it should always be the very last thing before the closing body tag -->
+    <!-- ghost_foot -->
+
+</body>
+</html>

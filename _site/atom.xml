@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title> - Articles</title>
+    <description>Just my thoughts, right or wrong</description>
+    <link>
+    http://localhost:5657</link>
+    
+      
+      <item>
+        <title>Calling Rust from Excel</title>
+        
+          <description>&lt;p&gt;This post is part of a series on interfacing Excel with various programming languages.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;excel&quot;&gt;Excel&lt;/h1&gt;
+
+&lt;p&gt;Excel is a tool that appears to be as loved as it is hated. Personally, I think its a fantastic tool, however its main benefits (easy to pick up and understand) also mean it is often used for tasks when it is no longer suitable, I have heard many a horror story of files taking minutes to load and requiring hours of pain staking checks just to make simple change due to their complexity.&lt;/p&gt;
+
+&lt;p&gt;Whatever your opinion of Excel, it is a tool many people are familiar with and can be used as a useful UI for certain types of applications. In this post I will demonstrate how to call Rust code from Excel via C#.&lt;/p&gt;
+
+&lt;h1 id=&quot;rust&quot;&gt;Rust&lt;/h1&gt;
+
+&lt;p&gt;I am going to assume you have Rust installed and know how to use Cargo to create and build projects. If not please follow the instructions on the &lt;a href=&quot;https://rustup.rs/&quot;&gt;RustUp website&lt;/a&gt; to install Rust.&lt;/p&gt;
+
+&lt;p&gt;I have also covered calling Rust from other languages (Python, R) &lt;a href=&quot;https://blog.jonharrington.org/rust-and-swig/&quot;&gt;here&lt;/a&gt; and if you are new to Rust please read that also.&lt;/p&gt;
+
+&lt;h1 id=&quot;excel-dna&quot;&gt;Excel-DNA&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://excel-dna.net/&quot;&gt;Excel-DNA&lt;/a&gt; is a .Net library that provides a high level API for interacting with Excel. Excel-DNA can be used to create both UDFs (functions you can call from a formula) and custom ribbon interfaces.&lt;/p&gt;
+
+&lt;p&gt;For this project we will write the algorithm in Rust, and call it from Excel via C# and the Excel-DNA API. I have two previous posts showing how to used Excel-DNA with F#, &lt;a href=&quot;https://blog.jonharrington.org/fsharp_excel_addin/&quot;&gt;Part 1&lt;/a&gt; and &lt;a href=&quot;https://blog.jonharrington.org/fsharp_excel_addin-pt2/&quot;&gt;Part 2&lt;/a&gt;. Reading those will help you get familiar with Excel-DNA.&lt;/p&gt;
+
+&lt;h2 id=&quot;set-up-and-simple-udf&quot;&gt;Set up and Simple UDF&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_rust/create_new.jpg&quot; alt=&quot;Create New Project&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In Visual Studio create a new &lt;strong&gt;Class Library (.NET Framework)&lt;/strong&gt; and call it RustExcel.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_rust/install_pkg.jpg&quot; alt=&quot;Install ExcelDna.Addin Package&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next, use the NuGet Package manager to install the &lt;strong&gt;Excel-DNA&lt;/strong&gt; package.&lt;/p&gt;
+
+&lt;p&gt;Finally, rename the Class1.cs file to something more sensible such as Functions.cs and add the following&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-C#&quot;&gt;using ExcelDna.Integration;
+
+
+public static class Functions
+{
+    [ExcelFunction(Description = &quot;Return the sum of two numbers&quot;)]
+    public static double RustSum(double a, double b)
+    {
+        return a + b;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Set up the projects debugging settings as described &lt;a href=&quot;https://blog.jonharrington.org/fsharp_excel_addin/&quot;&gt;previously&lt;/a&gt; and hit F5. Excel should open and you should be able to use the function you have just defined.&lt;/p&gt;
+
+&lt;h1 id=&quot;create-rust-project&quot;&gt;Create Rust Project&lt;/h1&gt;
+
+&lt;p&gt;As you will often have to deal with older 32 bit versions of Excel, we will build our library as 32 bit. Add the following target using rustup:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ rustup target add i586-pc-windows-msvc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Now create a new Rust library project&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ cargo new rustlib --lib
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;And modify the build file to create a dynamic library.&lt;/p&gt;
+
+&lt;div class=&quot;language-toml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nn&quot;&gt;[package]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;rustlib&quot;&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;0.1.0&quot;&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;authors&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Jonathan Harrington &amp;lt;---&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;edition&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;2018&quot;&lt;/span&gt;
+
+&lt;span class=&quot;nn&quot;&gt;[lib]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;rustlib&quot;&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;crate-type&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;[&quot;dylib&quot;]&lt;/span&gt;
+
+&lt;span class=&quot;nn&quot;&gt;[dependencies]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Next, create a cargo config file in &lt;code class=&quot;highlighter-rouge&quot;&gt;.cargo\config&lt;/code&gt; and add the following:&lt;/p&gt;
+
+&lt;div class=&quot;language-toml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nn&quot;&gt;[build]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;target&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;i586-pc-windows-msvc&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Finally, open lib.rs and add the following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Rust&quot;&gt;#[no_mangle]
+pub extern fn add_numbers(number1: f64, number2: f64) -&amp;gt; f64 {
+    number1 + number2
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now if you run &lt;code class=&quot;highlighter-rouge&quot;&gt;cargo build&lt;/code&gt; you should now have a 32 bit &lt;em&gt;rustlib.dll&lt;/em&gt; in your output folder (target\i586-pc-windows-msvc\debug).&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: If the build fails make sure you have installed the Microsoft C/C++ toolchain as part of your Visual Studio install.&lt;/p&gt;
+
+&lt;h1 id=&quot;calling-rust-from-excel&quot;&gt;Calling Rust from Excel&lt;/h1&gt;
+
+&lt;p&gt;Now back in our C# project we need to add the dll to our project. Right click on the project and select Add -&amp;gt; Existing Item and browse to the rustlib.dll in target\i586-pc-windows-msvc\debug.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_rust/rustlib_props.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Then modify the file properties to ensure it is copied to the output directory. Finally, change the code in Functions.cs to the following:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;using ExcelDna.Integration;
+using System;
+using System.Runtime.InteropServices;
+
+
+public static class Functions
+{
+    [DllImport(&quot;rustlib.dll&quot;, CallingConvention = CallingConvention.Cdecl)]
+    private static extern Double add_numbers(Double number1, Double number2);
+
+    [ExcelFunction(Description = &quot;Return the sum of two numbers&quot;)]
+    public static double RustSum(double a, double b)
+    {
+        return add_numbers(a, b);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Here we use the .NET Pinvoke functionality to declare the rust functions as external and then we simply call it from our C# wrapper. Now when you hit F5 and load Excel you can call “RustSum” as a UDF.&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;Excel-DNA makes it very easy to create Excel Add-ins and Rusts (and C#s) excellent FFI support allows for easy interop with C#. Shout out to &lt;a href=&quot;https://dev.to/living_syn/calling-rust-from-c-6hk&quot;&gt;dev.to&lt;/a&gt; and &lt;a href=&quot;http://jakegoulding.com/rust-ffi-omnibus/&quot;&gt;jakegoulding.com&lt;/a&gt; for creating some great easy to follow content on this. You should go read their sites for more info.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 17 Apr 2020 00:00:00 +0100</pubDate>
+        <link>
+        http://localhost:5657/calling-rust-from-excel/</link>
+        <guid isPermaLink="true">http://localhost:5657/calling-rust-from-excel/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>F# Excel Add-In Part 2</title>
+        
+          <description>&lt;p&gt;This post follows on from the &lt;a href=&quot;https://blog.jonharrington.org/fsharp_excel_addin/&quot;&gt;previous post&lt;/a&gt;, extending the Add-In with a UI.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sat, 01 Feb 2020 00:00:00 +0000</pubDate>
+        <link>
+        http://localhost:5657/fsharp_excel_addin_pt2/</link>
+        <guid isPermaLink="true">http://localhost:5657/fsharp_excel_addin_pt2/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>F# Excel Add-In</title>
+        
+          <description>&lt;p&gt;This is a post is based on information found in various repos and wiki pages on Github but I felt it was worth putting it all together along with some screenshots of Visual Studio 2019 for someone starting out in the .NET ecosystem.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Wed, 01 Jan 2020 00:00:00 +0000</pubDate>
+        <link>
+        http://localhost:5657/fsharp_excel_addin/</link>
+        <guid isPermaLink="true">http://localhost:5657/fsharp_excel_addin/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>European Institutions</title>
+        
+          <description>&lt;p&gt;With European elections just around the corner it is with some embarrassment I admit I am far more knowledgeable about US institutions and political parties than I am about the European Union equivalents. I have decided to rectify this in a blog post that I hope will take some of the mystique out of the machinations of the EU. 
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sun, 21 Oct 2018 00:00:00 +0100</pubDate>
+        <link>
+        http://localhost:5657/european-institutions/</link>
+        <guid isPermaLink="true">http://localhost:5657/european-institutions/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Please fix your dependencies</title>
+        
+          <description>&lt;p&gt;Please use fixed versions for your application dependencies.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Thu, 18 Oct 2018 00:00:00 +0100</pubDate>
+        <link>
+        http://localhost:5657/please-fix-your-dependencies/</link>
+        <guid isPermaLink="true">http://localhost:5657/please-fix-your-dependencies/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Free Speech</title>
+        
+          <description>&lt;p&gt;I can’t say I was upset to hear about Alex Jones recent removal from social media and podcast platforms. The man is a steaming pile of garbage and I have zero sympathy for him. However, after a discussion with friends and some conversations on twitter I started thinking about my own position on censorship and what I believe is acceptable speech.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Wed, 08 Aug 2018 00:00:00 +0100</pubDate>
+        <link>
+        http://localhost:5657/freespeech/</link>
+        <guid isPermaLink="true">http://localhost:5657/freespeech/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Rust and Swig</title>
+        
+          <description>&lt;p&gt;For a personal project I am working on I wanted to create Python bindings to a Rust library I am creating. The first port of call was &lt;a href=&quot;https://github.com/getsentry/milksnake&quot; title=&quot;Milksnake&quot;&gt;Milksnake&lt;/a&gt; and I wrote a Python wrapper to make it nicer to consume. However, a few weeks later I wanted wrappers for a few more languages and rather than create each one individually I decided to see if I could use a tried and trusted tool like &lt;a href=&quot;http://swig.org/&quot; title=&quot;SWIG&quot;&gt;Swig&lt;/a&gt;. What follows is a short tutorial on how to use Swig to create bindings for a Rust library.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Thu, 02 Aug 2018 00:00:00 +0100</pubDate>
+        <link>
+        http://localhost:5657/rust-and-swig/</link>
+        <guid isPermaLink="true">http://localhost:5657/rust-and-swig/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Integrate Django with Keycloak</title>
+        
+          <description>&lt;p&gt;&lt;a href=&quot;http://www.keycloak.org/&quot;&gt;Keycloak&lt;/a&gt; is an open source &lt;a href=&quot;https://en.wikipedia.org/wiki/Identity_management&quot;&gt;identity and access management (IAM)&lt;/a&gt; and &lt;a href=&quot;https://en.wikipedia.org/wiki/Single_sign-on&quot;&gt;single sign on (SSO)&lt;/a&gt; solution from &lt;a href=&quot;https://www.redhat.com/&quot;&gt;Redhat&lt;/a&gt;. If you have multiple web applications or services that require authentication, keycloak saves you from having to write the same authentication code over and over again, and allows your users to authenticate against multiple applications without having to log in multiple times. In this post I will show how to set up Keycloak running locally, and how to use it as the authentication provider for a &lt;a href=&quot;https://www.djangoproject.com/&quot;&gt;Django&lt;/a&gt; application. This post uses Python 3.x.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sun, 19 Feb 2017 00:00:00 +0000</pubDate>
+        <link>
+        http://localhost:5657/static/integrate-django-with-keycloak</link>
+        <guid isPermaLink="true">http://localhost:5657/static/integrate-django-with-keycloak</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>The Amiga</title>
+        
+          <description>&lt;p&gt;The Amiga 500+ wasn’t my first computer when I was a child (the ZX Spectrum has that honor), but it was the one I received at the age when I wanted to do more than just play games and for that reason it stands out in my memory as being something a bit special. With the demise of Commodore and the onset of my teenage years, I  drifted away from computers for a while only occasionally playing a Playstation at a friends houses. It wasn’‘t until I started University that I got interested and excited by computers again. That period of my life was Linux, the free software movement and learning to code. When I began working, and had some cash I moved to Macs and I stopped spending my evenings compiling kernels. It is only in the past year or so I have started to take a look back at the 8-bit and 16-bit systems of my youth and appreciate them anew.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sat, 14 Jan 2017 00:00:00 +0000</pubDate>
+        <link>
+        http://localhost:5657/the-amiga/</link>
+        <guid isPermaLink="true">http://localhost:5657/the-amiga/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Elixir and Jupyter</title>
+        
+          <description>&lt;p&gt;When using Python I rely heavily on &lt;a href=&quot;https://jupyter.org/&quot;&gt;Jupyter&lt;/a&gt; (nee iPython) and now that they are pushing multi-language support I am excited to see what other language communities do with it. In this post I will look at setting it up with an Elixir kernel.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Wed, 30 Sep 2015 00:00:00 +0100</pubDate>
+        <link>
+        http://localhost:5657/elixir-and-jupyter/</link>
+        <guid isPermaLink="true">http://localhost:5657/elixir-and-jupyter/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>A Custom Query Language</title>
+        
+          <description>&lt;p&gt;If you recall, our &lt;a href=&quot;http://blog.jonharrington.org/a-simple-cep-processor-in-elixir/&quot;&gt;CEP processor&lt;/a&gt; currently forces us to write elixir code to work on our windows of data, and our current implementation stores and operates on our data in the same function.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Mon, 31 Aug 2015 00:00:00 +0100</pubDate>
+        <link>
+        http://localhost:5657/custom-query-language/</link>
+        <guid isPermaLink="true">http://localhost:5657/custom-query-language/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Elixir and ZeroMQ</title>
+        
+          <description>&lt;p&gt;ZeroMQ is an excellent, language agnostic messaging and concurrency library. It can be used to provide non-BEAM based languages with some (but not all!) of the features that we take for granted when writing code in Elixir on the erlang vm. For this post, we will focus on its capabilities as a messaging library. This post gives a brief overview of ZeroMQ but you really should read the excellent &lt;a href=&quot;http://zguide.zeromq.org/page:all&quot;&gt;ZeroMQ guide&lt;/a&gt; to gain a more complete understanding.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 31 Jul 2015 00:00:00 +0100</pubDate>
+        <link>
+        http://localhost:5657/elixir-and-czmq/</link>
+        <guid isPermaLink="true">http://localhost:5657/elixir-and-czmq/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Elixir, Docker and PG2</title>
+        
+          <description>&lt;p&gt;Over the next few posts I plan to look at ways of making the &lt;a href=&quot;http://blog.jonharrington.org/a-simple-cep-processor-in-elixir/&quot;&gt;CEP processor&lt;/a&gt; created in the &lt;a href=&quot;http://blog.jonharrington.org/a-simple-cep-processor-in-elixir/&quot;&gt;last post&lt;/a&gt; distributed. But, before that, I want to take a short diversion and jot down some notes on how to set up Elixir in a docker container and have nodes, running in seperatate containers, communicate with each other.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Tue, 16 Jun 2015 00:00:00 +0100</pubDate>
+        <link>
+        http://localhost:5657/elixir-and-docker/</link>
+        <guid isPermaLink="true">http://localhost:5657/elixir-and-docker/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>A CEP Processor in Elixir</title>
+        
+          <description>&lt;p&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/Complex_event_processing&quot;&gt;CEP&lt;/a&gt; is the term used to describe systems that process streams of events. In this post, we will use the the data structures created in a &lt;a href=&quot;http://blog.jonharrington.org/simple-sliding-windows-in-elixir/&quot;&gt;previous post&lt;/a&gt; and a GenEvent server to create a simple CEP processor in Elixir.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Tue, 26 May 2015 00:00:00 +0100</pubDate>
+        <link>
+        http://localhost:5657/a-simple-cep-processor-in-elixir/</link>
+        <guid isPermaLink="true">http://localhost:5657/a-simple-cep-processor-in-elixir/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Simple Sliding Windows in Elixir</title>
+        
+          <description>&lt;p&gt;As part of some research I have been doing I wanted a sliding window data structure and thought it would be interesting to see how to implement custom data structures in Elixir.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Wed, 01 Apr 2015 00:00:00 +0100</pubDate>
+        <link>
+        http://localhost:5657/simple-sliding-windows-in-elixir/</link>
+        <guid isPermaLink="true">http://localhost:5657/simple-sliding-windows-in-elixir/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>PostGrest Introduction</title>
+        
+          <description>&lt;p&gt;I recently came across an interesting project called &lt;a href=&quot;https://github.com/begriffs/postgrest&quot;&gt;PostgREST&lt;/a&gt;, an application that claimed to read the database schema of you’‘r PostgreSQL database and automatically create a “a cleaner, more standards-compliant, faster API than you are likely to write from scratch.”
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Mon, 16 Mar 2015 00:00:00 +0000</pubDate>
+        <link>
+        http://localhost:5657/postgrest-introduction/</link>
+        <guid isPermaLink="true">http://localhost:5657/postgrest-introduction/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Using OTP from Elixir</title>
+        
+          <description>&lt;p&gt;In this post we will port the TCP RPC server from &lt;a href=&quot;http://manning.com/logan/&quot;&gt;Erlang and OTP in Action&lt;/a&gt; to Elixir. Elixir is an exciting new language targeting the Erlang VM (BEAM). The TCP RPC server will use the OTP libraries, these are a set of battle tested libraries that allow Erlang programmers to easily create reliable production ready applications. A big part of OTP is supervision trees, we will not use them in this example but will investigate them in a future post. More indept OTP information can be found on the &lt;a href=&quot;http://www.erlang.org/doc/design_principles/des_princ.html&quot;&gt;Erlang site&lt;/a&gt; or in the excellent &lt;a href=&quot;http://learnyousomeerlang.com/what-is-otp&quot;&gt;Learn you some erlang for great good&lt;/a&gt; book.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Mon, 06 Jan 2014 00:00:00 +0000</pubDate>
+        <link>
+        http://localhost:5657/using-otp-from-elixir/</link>
+        <guid isPermaLink="true">http://localhost:5657/using-otp-from-elixir/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Clojurescript and Closure UI Tutorial</title>
+        
+          <description>&lt;p&gt;I am researching the available Clojure options for web and front end development at the moment and plan to create a series of posts that document what I learn as I go. This post will be an introduction to using the Google Closure libraries with Clojurescript. It assumes some basic familiarity with Clojurescript.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Mon, 09 Dec 2013 00:00:00 +0000</pubDate>
+        <link>
+        http://localhost:5657/clojurescript-and-closure-ui/</link>
+        <guid isPermaLink="true">http://localhost:5657/clojurescript-and-closure-ui/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Clojure-py lite</title>
+        
+          <description>&lt;p&gt;I have been tracking the progress of &lt;a href=&quot;https://github.com/halgari/clojure-py&quot; title=&quot;Clojure-py&quot;&gt;clojure-py&lt;/a&gt; on and off for the past two years or so but unfortunately it has officially been &lt;a href=&quot;https://groups.google.com/d/msg/clojure-py-dev/HbeNEkIG23U/61rN0wR2qDwJ&quot; title=&quot;Gone&quot;&gt;dropped by its current maintainer&lt;/a&gt;. I know node.js and Clojurescript are Clojures “de-facto” scripting solution but I am more familiar with the Python ecosystem so I was looking forward to being able to use the libraries I know with Clojure. However, on the clojure-py mailing list &lt;a href=&quot;http://hylang.org/&quot; title=&quot;Hy&quot;&gt;Hy&lt;/a&gt; was mentioned as a possible alternative so I decided to take a look at Hy and see how close we can get to a Clojure “like” environment on cPython. &lt;em&gt;Note:&lt;/em&gt; I am not suggesting anyone use this setup for serious systems, its just a fun exercise.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Thu, 21 Nov 2013 00:00:00 +0000</pubDate>
+        <link>
+        http://localhost:5657/clojure-python-lite/</link>
+        <guid isPermaLink="true">http://localhost:5657/clojure-python-lite/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>My Clojure Scratchpad</title>
+        
+          <description>&lt;p&gt;When I want to do a quick calculation or perform a few one off commands that are beyond my bash knowledge I normally reach for Python. &lt;!--excerpt--&gt; My work flow is&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Mon, 11 Nov 2013 00:00:00 +0000</pubDate>
+        <link>
+        http://localhost:5657/clojure-scratchpad/</link>
+        <guid isPermaLink="true">http://localhost:5657/clojure-scratchpad/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Displaying MQTT messages in a browser in real time</title>
+        
+          <description>&lt;p&gt;I have recently been investigating how to display MQTT messages in a web browser in real time. The MQTT server I use is &lt;a href=&quot;http://mosquitto.org/&quot; title=&quot;Mosquitto&quot;&gt;Mosquitto&lt;/a&gt; as it is light weight and can be run on low power (ARM) devices, ideal if you want to use a Raspberry Pi as a gateway for sensors around your house. 
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sat, 02 Nov 2013 00:00:00 +0000</pubDate>
+        <link>
+        http://localhost:5657/displaying-mqtt-messages-in-a-browser-in-real-time/</link>
+        <guid isPermaLink="true">http://localhost:5657/displaying-mqtt-messages-in-a-browser-in-real-time/</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Conference Videos 2012</title>
+        
+          <description>&lt;p&gt;I wanted a list of video links to some interesting conferences so I will add them here as a reference for others.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sat, 16 Mar 2013 00:00:00 +0000</pubDate>
+        <link>
+        http://localhost:5657/conference-videos-2012/</link>
+        <guid isPermaLink="true">http://localhost:5657/conference-videos-2012/</guid>
+      </item>
+      
+    
+  </channel>
+</rss>

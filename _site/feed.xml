@@ -1,0 +1,1012 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.4">Jekyll</generator><link href="http://localhost:5657/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:5657/" rel="alternate" type="text/html" /><updated>2020-09-23T15:21:28+01:00</updated><id>http://localhost:5657/</id><title type="html">Jonathan Harrington</title><subtitle>Just my thoughts, right or wrong</subtitle><entry><title type="html">Calling Rust from Excel</title><link href="http://localhost:5657/calling-rust-from-excel/" rel="alternate" type="text/html" title="Calling Rust from Excel" /><published>2020-04-17T00:00:00+01:00</published><updated>2020-04-17T00:00:00+01:00</updated><id>http://localhost:5657/calling-rust-from-excel</id><content type="html" xml:base="http://localhost:5657/calling-rust-from-excel/">&lt;p&gt;This post is part of a series on interfacing Excel with various programming languages.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;excel&quot;&gt;Excel&lt;/h1&gt;
+
+&lt;p&gt;Excel is a tool that appears to be as loved as it is hated. Personally, I think its a fantastic tool, however its main benefits (easy to pick up and understand) also mean it is often used for tasks when it is no longer suitable, I have heard many a horror story of files taking minutes to load and requiring hours of pain staking checks just to make simple change due to their complexity.&lt;/p&gt;
+
+&lt;p&gt;Whatever your opinion of Excel, it is a tool many people are familiar with and can be used as a useful UI for certain types of applications. In this post I will demonstrate how to call Rust code from Excel via C#.&lt;/p&gt;
+
+&lt;h1 id=&quot;rust&quot;&gt;Rust&lt;/h1&gt;
+
+&lt;p&gt;I am going to assume you have Rust installed and know how to use Cargo to create and build projects. If not please follow the instructions on the &lt;a href=&quot;https://rustup.rs/&quot;&gt;RustUp website&lt;/a&gt; to install Rust.&lt;/p&gt;
+
+&lt;p&gt;I have also covered calling Rust from other languages (Python, R) &lt;a href=&quot;https://blog.jonharrington.org/rust-and-swig/&quot;&gt;here&lt;/a&gt; and if you are new to Rust please read that also.&lt;/p&gt;
+
+&lt;h1 id=&quot;excel-dna&quot;&gt;Excel-DNA&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://excel-dna.net/&quot;&gt;Excel-DNA&lt;/a&gt; is a .Net library that provides a high level API for interacting with Excel. Excel-DNA can be used to create both UDFs (functions you can call from a formula) and custom ribbon interfaces.&lt;/p&gt;
+
+&lt;p&gt;For this project we will write the algorithm in Rust, and call it from Excel via C# and the Excel-DNA API. I have two previous posts showing how to used Excel-DNA with F#, &lt;a href=&quot;https://blog.jonharrington.org/fsharp_excel_addin/&quot;&gt;Part 1&lt;/a&gt; and &lt;a href=&quot;https://blog.jonharrington.org/fsharp_excel_addin-pt2/&quot;&gt;Part 2&lt;/a&gt;. Reading those will help you get familiar with Excel-DNA.&lt;/p&gt;
+
+&lt;h2 id=&quot;set-up-and-simple-udf&quot;&gt;Set up and Simple UDF&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_rust/create_new.jpg&quot; alt=&quot;Create New Project&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In Visual Studio create a new &lt;strong&gt;Class Library (.NET Framework)&lt;/strong&gt; and call it RustExcel.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_rust/install_pkg.jpg&quot; alt=&quot;Install ExcelDna.Addin Package&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next, use the NuGet Package manager to install the &lt;strong&gt;Excel-DNA&lt;/strong&gt; package.&lt;/p&gt;
+
+&lt;p&gt;Finally, rename the Class1.cs file to something more sensible such as Functions.cs and add the following&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-C#&quot;&gt;using ExcelDna.Integration;
+
+
+public static class Functions
+{
+    [ExcelFunction(Description = &quot;Return the sum of two numbers&quot;)]
+    public static double RustSum(double a, double b)
+    {
+        return a + b;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Set up the projects debugging settings as described &lt;a href=&quot;https://blog.jonharrington.org/fsharp_excel_addin/&quot;&gt;previously&lt;/a&gt; and hit F5. Excel should open and you should be able to use the function you have just defined.&lt;/p&gt;
+
+&lt;h1 id=&quot;create-rust-project&quot;&gt;Create Rust Project&lt;/h1&gt;
+
+&lt;p&gt;As you will often have to deal with older 32 bit versions of Excel, we will build our library as 32 bit. Add the following target using rustup:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ rustup target add i586-pc-windows-msvc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Now create a new Rust library project&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ cargo new rustlib --lib
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;And modify the build file to create a dynamic library.&lt;/p&gt;
+
+&lt;div class=&quot;language-toml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nn&quot;&gt;[package]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;rustlib&quot;&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;0.1.0&quot;&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;authors&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Jonathan Harrington &amp;lt;---&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;edition&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;2018&quot;&lt;/span&gt;
+
+&lt;span class=&quot;nn&quot;&gt;[lib]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;rustlib&quot;&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;crate-type&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;[&quot;dylib&quot;]&lt;/span&gt;
+
+&lt;span class=&quot;nn&quot;&gt;[dependencies]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Next, create a cargo config file in &lt;code class=&quot;highlighter-rouge&quot;&gt;.cargo\config&lt;/code&gt; and add the following:&lt;/p&gt;
+
+&lt;div class=&quot;language-toml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nn&quot;&gt;[build]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;target&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;i586-pc-windows-msvc&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Finally, open lib.rs and add the following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Rust&quot;&gt;#[no_mangle]
+pub extern fn add_numbers(number1: f64, number2: f64) -&amp;gt; f64 {
+    number1 + number2
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now if you run &lt;code class=&quot;highlighter-rouge&quot;&gt;cargo build&lt;/code&gt; you should now have a 32 bit &lt;em&gt;rustlib.dll&lt;/em&gt; in your output folder (target\i586-pc-windows-msvc\debug).&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: If the build fails make sure you have installed the Microsoft C/C++ toolchain as part of your Visual Studio install.&lt;/p&gt;
+
+&lt;h1 id=&quot;calling-rust-from-excel&quot;&gt;Calling Rust from Excel&lt;/h1&gt;
+
+&lt;p&gt;Now back in our C# project we need to add the dll to our project. Right click on the project and select Add -&amp;gt; Existing Item and browse to the rustlib.dll in target\i586-pc-windows-msvc\debug.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_rust/rustlib_props.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Then modify the file properties to ensure it is copied to the output directory. Finally, change the code in Functions.cs to the following:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;using ExcelDna.Integration;
+using System;
+using System.Runtime.InteropServices;
+
+
+public static class Functions
+{
+    [DllImport(&quot;rustlib.dll&quot;, CallingConvention = CallingConvention.Cdecl)]
+    private static extern Double add_numbers(Double number1, Double number2);
+
+    [ExcelFunction(Description = &quot;Return the sum of two numbers&quot;)]
+    public static double RustSum(double a, double b)
+    {
+        return add_numbers(a, b);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Here we use the .NET Pinvoke functionality to declare the rust functions as external and then we simply call it from our C# wrapper. Now when you hit F5 and load Excel you can call “RustSum” as a UDF.&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;Excel-DNA makes it very easy to create Excel Add-ins and Rusts (and C#s) excellent FFI support allows for easy interop with C#. Shout out to &lt;a href=&quot;https://dev.to/living_syn/calling-rust-from-c-6hk&quot;&gt;dev.to&lt;/a&gt; and &lt;a href=&quot;http://jakegoulding.com/rust-ffi-omnibus/&quot;&gt;jakegoulding.com&lt;/a&gt; for creating some great easy to follow content on this. You should go read their sites for more info.&lt;/p&gt;</content><author><name></name></author><summary type="html">This post is part of a series on interfacing Excel with various programming languages. Excel Excel is a tool that appears to be as loved as it is hated. Personally, I think its a fantastic tool, however its main benefits (easy to pick up and understand) also mean it is often used for tasks when it is no longer suitable, I have heard many a horror story of files taking minutes to load and requiring hours of pain staking checks just to make simple change due to their complexity. Whatever your opinion of Excel, it is a tool many people are familiar with and can be used as a useful UI for certain types of applications. In this post I will demonstrate how to call Rust code from Excel via C#. Rust I am going to assume you have Rust installed and know how to use Cargo to create and build projects. If not please follow the instructions on the RustUp website to install Rust. I have also covered calling Rust from other languages (Python, R) here and if you are new to Rust please read that also. Excel-DNA Excel-DNA is a .Net library that provides a high level API for interacting with Excel. Excel-DNA can be used to create both UDFs (functions you can call from a formula) and custom ribbon interfaces. For this project we will write the algorithm in Rust, and call it from Excel via C# and the Excel-DNA API. I have two previous posts showing how to used Excel-DNA with F#, Part 1 and Part 2. Reading those will help you get familiar with Excel-DNA. Set up and Simple UDF In Visual Studio create a new Class Library (.NET Framework) and call it RustExcel. Next, use the NuGet Package manager to install the Excel-DNA package. Finally, rename the Class1.cs file to something more sensible such as Functions.cs and add the following using ExcelDna.Integration; public static class Functions { [ExcelFunction(Description = &quot;Return the sum of two numbers&quot;)] public static double RustSum(double a, double b) { return a + b; } } Set up the projects debugging settings as described previously and hit F5. Excel should open and you should be able to use the function you have just defined. Create Rust Project As you will often have to deal with older 32 bit versions of Excel, we will build our library as 32 bit. Add the following target using rustup: $ rustup target add i586-pc-windows-msvc Now create a new Rust library project $ cargo new rustlib --lib And modify the build file to create a dynamic library. [package] name = &quot;rustlib&quot; version = &quot;0.1.0&quot; authors = [&quot;Jonathan Harrington &amp;lt;---&amp;gt;&quot;] edition = &quot;2018&quot; [lib] name=&quot;rustlib&quot; crate-type = [&quot;dylib&quot;] [dependencies] Next, create a cargo config file in .cargo\config and add the following: [build] target = &quot;i586-pc-windows-msvc&quot; Finally, open lib.rs and add the following: #[no_mangle] pub extern fn add_numbers(number1: f64, number2: f64) -&amp;gt; f64 { number1 + number2 } Now if you run cargo build you should now have a 32 bit rustlib.dll in your output folder (target\i586-pc-windows-msvc\debug). Note: If the build fails make sure you have installed the Microsoft C/C++ toolchain as part of your Visual Studio install. Calling Rust from Excel Now back in our C# project we need to add the dll to our project. Right click on the project and select Add -&amp;gt; Existing Item and browse to the rustlib.dll in target\i586-pc-windows-msvc\debug. Then modify the file properties to ensure it is copied to the output directory. Finally, change the code in Functions.cs to the following: using ExcelDna.Integration; using System; using System.Runtime.InteropServices; public static class Functions { [DllImport(&quot;rustlib.dll&quot;, CallingConvention = CallingConvention.Cdecl)] private static extern Double add_numbers(Double number1, Double number2); [ExcelFunction(Description = &quot;Return the sum of two numbers&quot;)] public static double RustSum(double a, double b) { return add_numbers(a, b); } } Here we use the .NET Pinvoke functionality to declare the rust functions as external and then we simply call it from our C# wrapper. Now when you hit F5 and load Excel you can call “RustSum” as a UDF. Conclusion Excel-DNA makes it very easy to create Excel Add-ins and Rusts (and C#s) excellent FFI support allows for easy interop with C#. Shout out to dev.to and jakegoulding.com for creating some great easy to follow content on this. You should go read their sites for more info.</summary></entry><entry><title type="html">F# Excel Add-In Part 2</title><link href="http://localhost:5657/fsharp_excel_addin_pt2/" rel="alternate" type="text/html" title="F# Excel Add-In Part 2" /><published>2020-02-01T00:00:00+00:00</published><updated>2020-02-01T00:00:00+00:00</updated><id>http://localhost:5657/fsharp_excel_addin_pt2</id><content type="html" xml:base="http://localhost:5657/fsharp_excel_addin_pt2/">&lt;p&gt;This post follows on from the &lt;a href=&quot;https://blog.jonharrington.org/fsharp_excel_addin/&quot;&gt;previous post&lt;/a&gt;, extending the Add-In with a UI.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;excel-ui-extensions&quot;&gt;Excel UI Extensions&lt;/h1&gt;
+
+&lt;p&gt;There is currently two common ways to extend the Excel UI.&lt;/p&gt;
+
+&lt;h2 id=&quot;ribbon-extension&quot;&gt;Ribbon Extension&lt;/h2&gt;
+
+&lt;p&gt;This is the more mature and traditional approach. Excel ‘95 introduced a &lt;a href=&quot;https://github.com/Excel-DNA/ExcelDna/wiki/Excel-C-API&quot;&gt;C API&lt;/a&gt; which allowed developers to extend Excel with with custom functionality. Excel 2007 introduced the Ribbon UI and this too can be extended by developers with custom functionality. Excel-DNA makes this kind of extension easy.&lt;/p&gt;
+
+&lt;h2 id=&quot;excel-add-ins&quot;&gt;Excel Add-ins&lt;/h2&gt;
+
+&lt;p&gt;More recent versions of Excel support a new extension mechanism known as &lt;a href=&quot;https://docs.microsoft.com/en-us/office/dev/add-ins/excel/&quot;&gt;“Add-ins”&lt;/a&gt;. These are a cross platform extension mechanism, working on desktop, mobile and web platforms created using web technologies such as HTML, CSS and Javacript. These can add new UI components to the ribbon (&lt;a href=&quot;https://docs.microsoft.com/en-us/office/dev/add-ins/excel/excel-add-ins-overview#add-in-commands&quot;&gt;add-in commands&lt;/a&gt;) and also allow the creation of &lt;a href=&quot;https://docs.microsoft.com/en-us/office/dev/add-ins/excel/excel-add-ins-overview#task-panes&quot;&gt;task panes&lt;/a&gt;. These types of add-ins are not covered in this post.&lt;/p&gt;
+
+&lt;h1 id=&quot;update-the-project&quot;&gt;Update the project.&lt;/h1&gt;
+
+&lt;p&gt;We will build on the “MyAddIn” project from the previous post. First, we need to add a reference to Office Interop.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp_2/2_excel_interop.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The easiest way to do this is to open the NuGet package manager as before and search for the “ExcelDna.Interop” package and install it.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp_2/1_add_ribbon.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Add a new F# file called “Ribbon.fs”. We will then inherit from ExcelRibbon and extend it with our custom UI.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-F#&quot;&gt;module Ribbon
+
+open System.Runtime.InteropServices
+open Microsoft.Office.Interop.Excel
+open ExcelDna.Integration
+open ExcelDna.Integration.CustomUI
+
+
+[&amp;lt;ComVisible(true)&amp;gt;]
+type public Ribbon() =
+    inherit ExcelRibbon()
+
+    override this.GetCustomUI(ribbonId) =
+        @&quot;&amp;lt;customUI xmlns='http://schemas.microsoft.com/office/2009/07/customui'&amp;gt;
+          &amp;lt;ribbon&amp;gt;
+            &amp;lt;tabs&amp;gt;
+              &amp;lt;tab id='CustomTab' label='MyAddIn'&amp;gt;
+                &amp;lt;group id='SampleGroup' label='My Addin Group'&amp;gt;
+                  &amp;lt;button id='Button1' imageMso='HappyFace' size='large' label='Dump Excel Version' onAction='OnDumpData'/&amp;gt;
+                &amp;lt;/group &amp;gt;
+              &amp;lt;/tab&amp;gt;
+            &amp;lt;/tabs&amp;gt;
+          &amp;lt;/ribbon&amp;gt;
+        &amp;lt;/customUI&amp;gt;&quot;
+
+    member this.OnDumpData (control:IRibbonControl) =
+        let app = ExcelDnaUtil.Application :?&amp;gt; Application
+        let cellA1 = app.Range(&quot;A1&quot;)
+        cellA1.Value2 &amp;lt;- app.Version
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I have made a few changes here from the standard example. Firstly note the schema version. The “2009/07” version of the schema introduced in 2010. This newer schema allows us to do things like add custom context menus but it means our extension will not work in Excel 2007. I have also added an image to the button selecting one from the standard office palette. A list of the available images can be viewed on &lt;a href=&quot;https://bert-toolkit.com/imagemso-list.html&quot;&gt;bert-toolkit.com&lt;/a&gt;. If you hit F5 you should now see your new tab with a button.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp_2/std_icon.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;custom-button-icon&quot;&gt;Custom button icon&lt;/h2&gt;
+
+&lt;p&gt;If you wish to use a custom icon for your button we have a bit more work to do.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp_2/about_properties.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Download your image, add it to your project and change its properties so it is copied to the output directory. Next, add it to the MyAddIn-AddIn.dna file as an image resource:&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;DnaLibrary&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;MyAddIn Add-In&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;RuntimeVersion=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;v4.0&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;xmlns=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://schemas.excel-dna.net/addin/2018/05/dnalibrary&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;ExternalLibrary&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Path=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;MyAddIn.dll&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ExplicitExports=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;false&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;LoadFromBytes=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;true&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Pack=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;true&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;IncludePdb=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;false&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;Image&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;about&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Path=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;about.png&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;Pack=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;true&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/DnaLibrary&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Finally, update the Ribbon.fs file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-F#&quot;&gt;module Ribbon
+
+open System.Runtime.InteropServices
+open Microsoft.Office.Interop.Excel
+open ExcelDna.Integration
+open ExcelDna.Integration.CustomUI
+
+
+[&amp;lt;ComVisible(true)&amp;gt;]
+type public Ribbon() =
+    inherit ExcelRibbon()
+
+    override this.GetCustomUI(ribbonId) =
+        @&quot;&amp;lt;customUI xmlns='http://schemas.microsoft.com/office/2009/07/customui' loadImage='LoadImage'&amp;gt;
+          &amp;lt;ribbon&amp;gt;
+            &amp;lt;tabs&amp;gt;
+              &amp;lt;tab id='CustomTab' label='MyAddIn'&amp;gt;
+                &amp;lt;group id='SampleGroup' label='My Addin Group'&amp;gt;
+                  &amp;lt;button id='Button1' image='about' size='large' label='Dump Excel Version' onAction='OnDumpData'/&amp;gt;
+                &amp;lt;/group &amp;gt;
+              &amp;lt;/tab&amp;gt;
+            &amp;lt;/tabs&amp;gt;
+          &amp;lt;/ribbon&amp;gt;
+        &amp;lt;/customUI&amp;gt;&quot;
+
+    member this.OnDumpData (control:IRibbonControl) =
+        let app = ExcelDnaUtil.Application :?&amp;gt; Application
+        let cellA1 = app.Range(&quot;A1&quot;)
+        cellA1.Value2 &amp;lt;- app.Version
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We added a ‘loadImage’ call back and added an image tag to the button element. The “LoadImage” method is provided by Excel-DNA (in ExcelRibbon) so you can override it if required. It is passed the string value from the image attribute and expected to return a &lt;code class=&quot;highlighter-rouge&quot;&gt;Bitmap&lt;/code&gt; type. Finally, hitting F5 should show us the new button icon.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp_2/final_icon.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;custom-context-menu&quot;&gt;Custom context menu&lt;/h1&gt;
+
+&lt;p&gt;From Excel 2010 onwards it is also possible to customize the context menu. Now that we have our base project set up, this is fairly straight forward. Modify the GetCutomUI method to match below::&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-F#&quot;&gt;    override this.GetCustomUI(ribbonId) = 
+        @&quot;&amp;lt;customUI xmlns='http://schemas.microsoft.com/office/2009/07/customui' loadImage='LoadImage'&amp;gt;
+          &amp;lt;ribbon&amp;gt;
+            &amp;lt;tabs&amp;gt;
+              &amp;lt;tab id='CustomTab' label='MyAddIn'&amp;gt;
+                &amp;lt;group id='SampleGroup' label='My Addin Group'&amp;gt;
+                  &amp;lt;button id='Button1' image='about' size='large' label='Dump Excel Version' onAction='OnDumpData'/&amp;gt;
+                &amp;lt;/group &amp;gt;
+              &amp;lt;/tab&amp;gt;
+            &amp;lt;/tabs&amp;gt;
+          &amp;lt;/ribbon&amp;gt;
+         &amp;lt;contextMenus&amp;gt;
+           &amp;lt;contextMenu idMso='ContextMenuCell'&amp;gt;
+              &amp;lt;button id='Button2' label='Insert Excel Version'
+ 		        insertBeforeMso='Cut'
+		        onAction='OnDumpData' 
+		        image='about'/&amp;gt;
+           &amp;lt;/contextMenu&amp;gt;
+        &amp;lt;/contextMenus&amp;gt;
+        &amp;lt;/customUI&amp;gt;&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And once again hit F5.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp_2/custom_context.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You can now see your custom menu item and icon when you right click on any cell.&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;This is a very basic demo showing how extensible the Excel UI is, and a demonstration of how you can extend the it using F#. It is worth reading the &lt;a href=&quot;https://github.com/Excel-DNA/Samples/tree/master/Ribbon&quot;&gt;Excel-DNA sample code&lt;/a&gt; to learn what else you can do.&lt;/p&gt;</content><author><name></name></author><summary type="html">This post follows on from the previous post, extending the Add-In with a UI.</summary></entry><entry><title type="html">F# Excel Add-In</title><link href="http://localhost:5657/fsharp_excel_addin/" rel="alternate" type="text/html" title="F# Excel Add-In" /><published>2020-01-01T00:00:00+00:00</published><updated>2020-01-01T00:00:00+00:00</updated><id>http://localhost:5657/fsharp_excel_addin</id><content type="html" xml:base="http://localhost:5657/fsharp_excel_addin/">&lt;p&gt;This is a post is based on information found in various repos and wiki pages on Github but I felt it was worth putting it all together along with some screenshots of Visual Studio 2019 for someone starting out in the .NET ecosystem.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;introduction&quot;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;I am going to assume you know what F# is and why you would want to use it. I am also going to assume you are familiar with Excel. In this post we will build a simple Excel plug-in that:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Exposes functions for use within a worksheet&lt;/li&gt;
+  &lt;li&gt;Contains the bulk of its Logic in a .NET Standard library&lt;/li&gt;
+  &lt;li&gt;Uses Excel-DNA and .NET Framework (by necessity) to generate the add-in&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Separating our solution into two or more projects allows us to write more portable and future proof code for our business logic, while still using Excel-DNA which depends on the windows only .NET framework.&lt;/p&gt;
+
+&lt;h2 id=&quot;net-what&quot;&gt;.NET what?&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/dotnet_platforms.png&quot; alt=&quot;.NET Platforms&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If you are new to the .NET ecosystem and from a JVM background or similar the different versions of .NET can at first seem confusing.&lt;/p&gt;
+
+&lt;p&gt;The .NET framework is the original (and now legacy) Microsoft implementation. It is widely used, has the largest library support and contains the largest number of APIs. However it is not the future of the platform, that mantle has been passed to .NET Core.&lt;/p&gt;
+
+&lt;p&gt;The .NET Core implementation is the newer, open source, cross platform implementation from Microsoft. It is less mature than .NET Framework but catching up quickly. Where ever possible new code should target .NET Core.&lt;/p&gt;
+
+&lt;p&gt;Xamarin (aka mono) is another open source and cross-platform implementation originally written by a third party company. Microsoft purchased Xamarin in 2016 and Xamarins main focus is now on a runtime and solution for mobile iOS and Android developers.&lt;/p&gt;
+
+&lt;p&gt;Finally, .NET Standard (aka BCL) is a description of the APIs and components provided by all of the aforementioned implementations. If your code targets .NET Standard it can be used in .NET framework, .NET Core and Xamarin apps.&lt;/p&gt;
+
+&lt;h1 id=&quot;create-and-setup-the-solution&quot;&gt;Create and setup the solution&lt;/h1&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/1_new_project.png&quot; alt=&quot;Create a new project&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The first thing we need to do is create a new F# .NET Framework project.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/2_fsharp_desktop_support.png&quot; alt=&quot;Ensure F# desktop support is installed&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt; it must be a .NET Framework project. If this template is not available you will need to check the visual studio installer and make sure you installed desktop support for F#.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/3_configure.png&quot; alt=&quot;Configure&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I named the project “MyAddIn”. Next we can remove the files we don’t require. Delete the automatically generated “AssemblyInfo.fs” and “Script.fsx” files.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/4_open_nuget.png&quot; alt=&quot;Nuget Package Manager&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next, add the Excel-DNA library using the Nuget package manager.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/5_install_excel_dna.png&quot; alt=&quot;Add Excel-DNA&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Click on “Browse” and search for Excel-DNA. Install the “ExcelDna.AddIn”.&lt;/p&gt;
+
+&lt;h2 id=&quot;set-up-excel&quot;&gt;Set up Excel&lt;/h2&gt;
+
+&lt;p&gt;Next, we will make a small change to our Excel settings to make it easier to see any errors.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/6_setup_excel.png&quot; alt=&quot;Setup Excel&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Open Excel, in the file tab open Options. Select the advanced category and under “General” tick the “Show add-in user interface errors” checkbox. Save your settings and exit Excel.&lt;/p&gt;
+
+&lt;h2 id=&quot;modify-the-entry-point-project&quot;&gt;Modify the “Entry Point” project&lt;/h2&gt;
+
+&lt;p&gt;Now we will set up the project to allow for easier user testing and debugging.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/7_debug_settings.png&quot; alt=&quot;Debug Settings&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Open the projects properties screen and select the debugging tab. In the “Start external program” text field put the full path to your Excel application. For “Command line arguments” but the path to the add-in you want to test. Excel-DNA generates a number of Add-Ins. I don’t want to go to much into the details of Excel-DAN in this post but for easy distribution you can use the “-packed” add-ins. Both 32 and 64 bit versions of the xll are created.&lt;/p&gt;
+
+&lt;p&gt;Change the code in Library1.fs to the following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-F#&quot;&gt;module MyAddIn
+
+open ExcelDna.Integration
+
+[&amp;lt;ExcelFunction(Description=&quot;My first .NET function&quot;)&amp;gt;]
+let HelloDna name =
+    &quot;Hello &quot; + name
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can now test it.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/8_simple_test.png&quot; alt=&quot;Test it out&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If you now hit start (or press F5) Excel should open. Enable the add-in for this session only and test it out.&lt;/p&gt;
+
+&lt;h2 id=&quot;create-the-business-logic-project&quot;&gt;Create the business logic project&lt;/h2&gt;
+
+&lt;p&gt;The “logic” project will target .NET Standard. This gives us more options in the future if we want to re-use the same logic in a Xamarin mobile application or a .NET Core web application.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/9_new_project.png&quot; alt=&quot;New Project&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Right Click on your solution and Add a new project. This time we will use the “Class Library (.NET Standard)” template and call it “Logic”. Change the code in “library.fs” to:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;namespace Logic
+
+module Say =
+    let hello name =
+        &quot;Hello &quot; + name
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;We now need to call our new “portable” code.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/10_add_link.png&quot; alt=&quot;Add reference&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Back in our entry point project (MyAddIn) add the new project “Logic” as a reference and change the code in “Library1.fs” to use the function from our .NET Standard library instead:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;module MyAddIn
+
+open ExcelDna.Integration
+open Logic.Say
+
+[&amp;lt;ExcelFunction(Description=&quot;My first .NET function&quot;)&amp;gt;]
+let HelloDna name = hello name
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;create-the-test-project&quot;&gt;Create the test project&lt;/h2&gt;
+
+&lt;p&gt;Finally, we will create a test project to test our business logic code.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/11_unit_project.png&quot; alt=&quot;Add xUnit Project&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This time we choose the xUnit Test Project (.NET Core) and call it “Logic.Test”.&lt;/p&gt;
+
+&lt;p&gt;Again, we add “Logic” as a reference to it and we change the test code in “Tests.fs” to:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-F#&quot;&gt;module Tests
+
+open System
+open Xunit
+open Logic.Say
+
+[&amp;lt;Fact&amp;gt;]
+let ``My test`` () =
+    Assert.Equal(&quot;Hello jon&quot;, hello(&quot;jon&quot;))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_fsharp/12_tests_passing.png&quot; alt=&quot;Tests Pass&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Right click on the project select “Run Tests”. The Test explorer will appear and show the test passing.&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;In this post we have seen how to create a simple Excel add-in using F#. We have also learned how to split out our code into a more portable library to allow for future re-use in other projects.&lt;/p&gt;
+
+&lt;p&gt;Although this post uses Visual Studio 2019 on Windows (as Excel-DNA is windows only) the quality of the tooling being built by Microsoft .NET Core is also very impressive and well worth a look. I am excited to delve deeper into the ecosystem and start using F# in data projects.&lt;/p&gt;</content><author><name></name></author><summary type="html">This is a post is based on information found in various repos and wiki pages on Github but I felt it was worth putting it all together along with some screenshots of Visual Studio 2019 for someone starting out in the .NET ecosystem.</summary></entry><entry><title type="html">European Institutions</title><link href="http://localhost:5657/european-institutions/" rel="alternate" type="text/html" title="European Institutions" /><published>2018-10-21T00:00:00+01:00</published><updated>2018-10-21T00:00:00+01:00</updated><id>http://localhost:5657/european-institutions</id><content type="html" xml:base="http://localhost:5657/european-institutions/">&lt;p&gt;With European elections just around the corner it is with some embarrassment I admit I am far more knowledgeable about US institutions and political parties than I am about the European Union equivalents. I have decided to rectify this in a blog post that I hope will take some of the mystique out of the machinations of the EU. 
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;non-eu-institutions&quot;&gt;Non EU Institutions&lt;/h1&gt;
+
+&lt;p&gt;First I want to briefly mention famous European institutions that sound like they are part of the EU, but aren’t.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-council-of-europe&quot;&gt;The Council of Europe&lt;/h2&gt;
+
+&lt;p&gt;This is an &lt;a href=&quot;https://en.wikipedia.org/wiki/Council_of_Europe&quot;&gt;organisation&lt;/a&gt; founded in 1949 whose aim is to uphold human rights, democracy and the rule of law in Europe. It has 47 member states covering 820 million people. It is an Official United Nations Advisor but cannot make binding laws. To confuse one further, the EU adopted the European Flag and the European anthem from the council of Europe. Every EU member is also a member of the council of Europe, but the inverse is not also the case. It is headquartered in Strasbourg, France.&lt;/p&gt;
+
+&lt;p&gt;It has a number of bodies. Its Executive branch, the Committee of Ministers of the Council of Europe comprises of Foreign ministers of all the member states. The Parliamentary Assembly of the Council of Europe (PACE) is made of 324 members drawn from member states and meets 4 times a year. Both bodies draw their members from national parliaments and have no direct elections. Ireland has 4 seats in the Parliament and the delegation can be viewed on the &lt;a href=&quot;https://www.oireachtas.ie/en/inter-parliamentary-work/council-of-europe/&quot;&gt;oireachtas website&lt;/a&gt;. Currently the delegation comprises of Senator Joe O’Reilly, Senator Maura Hopkins, Deputy Barry Cowen and Senator Paul Gavan.&lt;/p&gt;
+
+&lt;p&gt;The Councils work typically involves drafting treaties and resolutions and performing work to protect freedom and democracy such as election monitoring. The following short list of treaties should gives some examples of the areas they can cover, a full list is available on their &lt;a href=&quot;https://www.coe.int/en/web/conventions/full-list&quot;&gt;website&lt;/a&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.coe.int/en/web/conventions/full-list/-/conventions/treaty/005&quot;&gt;Convention for the Protection of Human Rights and Fundamental Freedoms&lt;/a&gt; (European Convention on Human Rights)&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.coe.int/en/web/conventions/full-list/-/conventions/treaty/121&quot;&gt;Convention for the Protection of the Architectural Heritage of Europe&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.coe.int/en/web/conventions/full-list/-/conventions/treaty/123&quot;&gt;European Convention for the Protection of Vertebrate Animals used for Experimental and other Scientific Purposes&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.coe.int/en/web/conventions/full-list/-/conventions/treaty/130&quot;&gt;Convention on Insider Trading&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.coe.int/en/web/conventions/full-list/-/conventions/treaty/216&quot;&gt;Council of Europe Convention against Trafficking in Human Organs&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;european-court-of-human-rights&quot;&gt;European Court of Human Rights&lt;/h2&gt;
+
+&lt;p&gt;The &lt;a href=&quot;https://en.wikipedia.org/wiki/European_Court_of_Human_Rights&quot;&gt;European Court of Human Rights&lt;/a&gt; (ECHR) is an international court established under the European Convention on Human Rights. An application can be made to the court by one or more individuals, or a state that is a member of the Council of Europe regarding human, civil or political rights breaches as defined in the Convention and its protocols. It is comprised of 47 judges, 1 from each member state and sits in Strasbourg, France. The current Irish representative is Dr. Síofra O’Leary, who formerly worked at the European Court of Justice. The ECHR has ruled on a  number of Irish related cases in the past, some of the most famous being &lt;a href=&quot;https://en.wikipedia.org/wiki/Five_techniques#European_Court_of_Human_Rights_trial_Ireland_v._the_United_Kingdom&quot;&gt;Ireland v. the United Kingdom&lt;/a&gt; in 1978, &lt;a href=&quot;https://en.wikipedia.org/wiki/Norris_v._Ireland&quot;&gt;Norris v. Ireland&lt;/a&gt; in 1988 and &lt;a href=&quot;https://en.wikipedia.org/wiki/A,_B_and_C_v_Ireland&quot;&gt;A,B and C v. Ireland&lt;/a&gt; in 2010.&lt;/p&gt;
+
+&lt;h1 id=&quot;eu-institutions&quot;&gt;EU Institutions&lt;/h1&gt;
+
+&lt;p&gt;Now, on to the main event. The EU is comprised of 7 institutions.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;European Court of Auditors&lt;/li&gt;
+  &lt;li&gt;European Central Bank&lt;/li&gt;
+  &lt;li&gt;Court of Justice of the European Union&lt;/li&gt;
+  &lt;li&gt;European Council&lt;/li&gt;
+  &lt;li&gt;Council of the Europe Union&lt;/li&gt;
+  &lt;li&gt;European Parliament&lt;/li&gt;
+  &lt;li&gt;European Commission&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Three are notionally non-political (Court of auditors, ECB and ECJ) whereas the remaining 4 are composed of national or European politicians.&lt;/p&gt;
+
+&lt;h2 id=&quot;european-court-of-auditors&quot;&gt;European Court of Auditors&lt;/h2&gt;
+
+&lt;p&gt;The least glamorous of them all is the European Court of Auditors. Founded in 1975, the court has no judicial functions. The court is composed of one member from each EU state and is responsible for ensuring the EU budget is correctly implemented. Members are appointed by the Council of the European Union after a hearing in the Committee on Budgetary Control, a European Parliament committee. In Irish terms it is performs similar functions to the office of the Comptroller and Auditor General. A list of its current members is available on its &lt;a href=&quot;https://www.eca.europa.eu/en/Pages/OrganizationChartList.aspx&quot;&gt;website.&lt;/a&gt; Tony Murphy is the current Irish member, he was formerly an auditor at the office of the Comptroller and Auditor General and has held various other bureaucratic EU positions.&lt;/p&gt;
+
+&lt;h2 id=&quot;european-central-bank&quot;&gt;European Central Bank&lt;/h2&gt;
+
+&lt;p&gt;The European Central Bank, better known by its acronym “the ECB”, is the central bank for the Euro and administers euro zone monitory policy. It is one of the “Big Four” central banks alongside the Bank of England, the Federal Reserve (USA) and the Bank of Japan.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The capital stock of the bank is owned by the central banks of all 28 EU member states.&lt;/li&gt;
+  &lt;li&gt;It has an executive board comprising of 6 members, President, Vice President and 4 other members. The executive board is responsible for carrying out the decisions of the Governing Council.&lt;/li&gt;
+  &lt;li&gt;Governing Council of the European Central Bank is the main decision-making body, it comprises of members of the Executive board and the governors of the national central bank of the Euro Zone countries.&lt;/li&gt;
+  &lt;li&gt;The governing council meets twice a month in Frankfurt.&lt;/li&gt;
+  &lt;li&gt;The current governor of the Irish Central Bank, Philip_R._Lane is a member of the council.&lt;/li&gt;
+  &lt;li&gt;Members of the Executive Board of the &lt;a href=&quot;https://en.wikipedia.org/wiki/European_Central_Bank&quot;&gt;European Central Bank&lt;/a&gt; are nominated by agreement between the Heads of Government of the &lt;a href=&quot;https://en.wikipedia.org/wiki/Eurozone&quot;&gt;Eurozone&lt;/a&gt; countries for a non-renewable eight-year term. Executive members do not represent a particular country and are not expected to track the economic fortunes of their home state.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;court-of-justice-of-the-european-union&quot;&gt;Court of Justice of the European Union&lt;/h2&gt;
+
+&lt;p&gt;The Court of Justice of the European Union is an institution that comprises of the European Court of Justice (officially the Court of Justice), more commonly known by its acronym “the ECJ” and the General Court.&lt;/p&gt;
+
+&lt;p&gt;The ECJ is the supreme court of the European Union. Its mandate is to interpret EU laws and ensure their implementation in all EU states. It is comprised of one member from each EU state. The judges and Advocate-generals are appointed by common accord of the governments of the member state, in practice, each member state nominates a judge whose nomination is then ratified by all the other member states. The current Irish representative is Aindrias Ó Caoimh, a former high court judge, and son of former ECJ judge Aindrias Ó Caoimh. National Supreme courts can refer cases to the ECJ, for example in April 2018 the Irish Supreme Court requested the ECJ consider 11 questions on transferring Facebook users data to the US. Individuals and organisations can also petition the ECJ if they feel a national government isn’t correctly implementing EU law, for example in 2007 Birdwatch Ireland took a case against the Irish government in relation to special protection areas for wild birds.&lt;/p&gt;
+
+&lt;p&gt;The General Court, a Court focused on competition law, state aid, trade, agriculture and trade marks, is far well less known. It consists of two judges from each member state and a registrar. Appoint procedure is by common accord similar to the ECJ. The current Irish representative is Anthony Michael Collins.&lt;/p&gt;
+
+&lt;h1 id=&quot;next-time&quot;&gt;Next Time&lt;/h1&gt;
+
+&lt;p&gt;I hope this gives you an overview of some of the non-EU institutions you may have come across and the three non-political EU institutions. In a future post I will cover the four more “political” EU institutions: the European Council, the Council of the Europe Union, the European Parliament and the European Commission.&lt;/p&gt;</content><author><name></name></author><summary type="html">With European elections just around the corner it is with some embarrassment I admit I am far more knowledgeable about US institutions and political parties than I am about the European Union equivalents. I have decided to rectify this in a blog post that I hope will take some of the mystique out of the machinations of the EU.</summary></entry><entry><title type="html">Please fix your dependencies</title><link href="http://localhost:5657/please-fix-your-dependencies/" rel="alternate" type="text/html" title="Please fix your dependencies" /><published>2018-10-18T00:00:00+01:00</published><updated>2018-10-18T00:00:00+01:00</updated><id>http://localhost:5657/please-fix-your-dependencies</id><content type="html" xml:base="http://localhost:5657/please-fix-your-dependencies/">&lt;p&gt;Please use fixed versions for your application dependencies.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+&lt;p&gt;While at university our lecturers spoke at length about software components. “Object orientation has failed us when it comes to re-use” we were told, “objects are too fine grained, too specific, components are the solution”.&lt;/p&gt;
+
+&lt;p&gt;We were told to imagine the component marketplaces we would peruse, and how we would use point and click tools to draw lines between components to build our software. A nice idea, it’s happened, just not in the way we were told it would.&lt;/p&gt;
+
+&lt;p&gt;It turns out re-use wasn’t really a technology or a “grain” problem, it was a license and cultural problem. The Internet and free/open source software have solved it in ways we couldn’t imagine all those years ago (It was only 15 years ago). Nowadays when starting a new project in any language the first thing we do is create a build/configuration file that lists our dependencies and run a tool that will automatically download and mange them for us. It’s fantastic, except when it’s not.&lt;/p&gt;
+
+&lt;p&gt;If you are developing an end user application, be it a a web app or a desktop app, use fixed versions for your dependencies. By default many build tools won’t add a dependency version, or will had a prefix allowing any minor version assuming it will work fine, often it won’t.&lt;/p&gt;
+
+&lt;p&gt;Time and time again I check out an application, and go to run it only to find I have to go and downgrade or patch packages your application depends on. Your application breaks through no fault of your code.&lt;/p&gt;
+
+&lt;p&gt;Open source is fantastic, this culture we have of sharing and collaborating, of offering our work to others for free so they can get on with solving the problem at hand is something I am very grateful for. However, it doesn’t need to be this hard. Please fix your dependencies to known working versions and make it easier for end users to use, enjoy and maybe even contribute to your hard work. We will all benefit.&lt;/p&gt;</content><author><name></name></author><summary type="html">Please use fixed versions for your application dependencies.</summary></entry><entry><title type="html">Free Speech</title><link href="http://localhost:5657/freespeech/" rel="alternate" type="text/html" title="Free Speech" /><published>2018-08-08T00:00:00+01:00</published><updated>2018-08-08T00:00:00+01:00</updated><id>http://localhost:5657/freespeech</id><content type="html" xml:base="http://localhost:5657/freespeech/">&lt;p&gt;I can’t say I was upset to hear about Alex Jones recent removal from social media and podcast platforms. The man is a steaming pile of garbage and I have zero sympathy for him. However, after a discussion with friends and some conversations on twitter I started thinking about my own position on censorship and what I believe is acceptable speech.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+&lt;p&gt;I am Irish. The US has the first amendment to its constituent ensuring a persons right to free speech, in Ireland free speech is protected by Article 40.6.1 of our constitution with the caveat it may not be used to undermine “public order or morality or the authority of the State”. We have a ridiculous blasphemy law on our books due to this. Some European countries go further and have laws prohibiting certain types of speech. Hate speech and incitement to violence is banned in the UK for example, and holocaust denial is banned in France and Germany. So Europe  does not have the same culture of absolute free speech as the USA. But what about me? Am I a free speech absolutist or do I have a more nuanced European attitude? Is removing Infowars from the biggest online platforms a slippery slope? Should I rally to defend his right to free speech even though I detest what he has done to the families of Sandy Hook with every fibre of my being.&lt;/p&gt;
+
+&lt;p&gt;I want to work through a few of the points I have seen made over the past two days. A friend of mine compared it to a catholic book store refusing to sell the God Delusion by Dawkins. Fundamentally, this is correct. I don’t believe a business has to sell or promote a product it does not agree with. However the problem with this particular example is that the Catholic bookshop is by its nature selective. It focuses on Catholic books and the book was never stocked to begin with, it was not sold for a few weeks and then removed. Also a Catholic bookstore has a niche remit. A podcast platform focussing solely on music podcast should be allowed delist a podcast that changed its focus to fly fishing. What makes Apple, Google, Facebook and Twitter different is the monopoly they have on content distribution. They are now the main online media portals and content distribution platforms for a large percentage of internet users, and with that comes certain responsibilities, they need to be regulated and they need to adhere to codes of conduct, self regulation won’t cut it.&lt;/p&gt;
+
+&lt;p&gt;Next I want to talk about the firing of &lt;a href=&quot;https://en.wikipedia.org/wiki/James_Gunn#Controversial_tweets_and_firing_from_Disney&quot;&gt;James Gunn&lt;/a&gt; and &lt;a href=&quot;https://en.wikipedia.org/wiki/Google%27s_Ideological_Echo_Chamber&quot;&gt;James Damore&lt;/a&gt;. I have sympathy for both these cases, not because I like or agree with them, but because I feel you shouldn’t be fired for your beliefs or stating your opinion. Now, did these two individuals breach contracts? I’m sure they did, but employment contracts can be so broad as to be meaningless. What should a company do if 100 or 1000 employees come and say they are going to quit if this person isn’t fired? It’s a tough one. I feel sympathy for the employees that have to work next to this person and I see it from the companies point of view, it makes a lot more business sense to fire one person than lose tens or hundreds of staff members, and potentially many more people that decide to never work for you. Also, a company has an obligation to do what is right for its staff and shareholders, I am sure thats what Google and Disney tried to do in these situations. So, while I feel sympathy for the two people fired, its hard to argue a company should continue to employee people that negatively affect other members of staff. While these companies are massive, they don’t have a monopoly on jobs. The people affected can find work elsewhere.&lt;/p&gt;
+
+&lt;p&gt;The next comparisons I have seen being made is to the &lt;a href=&quot;https://en.wikipedia.org/wiki/Masterpiece_Cakeshop_v._Colorado_Civil_Rights_Commission&quot;&gt;bakery&lt;/a&gt; that refused to bake a cake for a gay wedding due to the religious beliefs of its owners. If the owners had a belief in white supremacy, would we accept them refusing to serve a black person because they felt they should not be allowed marry? Of course not, you will struggle to find any right thinking person that would argue that is acceptable. That is discrimination. The bakery sold cakes to everyone, they are not a “whites only” bakery or a “catholic bakery”, they have not focussed on a niche. A customer requested their standard service, didn’t violate any explicit or implicit agreements (they didn’t stand at the door harassing other customers) and they shouldn’t be allowed to discriminate against a group because of the way they look, talk or because of who they wish to marry. If a group had started harassing customers and affecting business they would be well within their rights to not serve that group and call law enforcement. I don’t believe this is a free speech issue. You could argue its a religious freedom issue but at its core its a discrimination issue, and discrimination should not be tolerated. The US supreme court ruled in favor of the bakery.&lt;/p&gt;
+
+&lt;p&gt;Finally, I have seen the &lt;a href=&quot;https://en.wikipedia.org/wiki/Zubik_v._Burwell&quot;&gt;catholic organization&lt;/a&gt; that refused to cover contraception in its health care plan being raised. Again, here we have an organization refusing to comply with a law due to their religious beliefs. Is this any different to the bakery? I would argue it is. They are a catholic charity. This is specific and the catholic church has a strong objection to contraception. In this case I am inclined to agree with the charity. Is objecting to contraception discrimination against women? You could argue many catholic teaching and practices are discrimination against women but anyone working for them would be aware of its rules at the time they accepted the job and would surely know by working for a catholic charity they are helping to perpetuate these teachings and practices. I don’t believe the charity should be forced to cover contraception, even though I do believe the church should get its head out of its behind and start focussing on the health and well being of its constituents and not some doctrine scribbled down by old men decades and  centuries ago. I don’t believe this is a free speech or discrimination issue, it is a religious freedom issue. Work to get your religion modernized and this problem goes away. The US supreme court referred the case back to lower courts.&lt;/p&gt;
+
+&lt;p&gt;So what about Apple et al? Was removing Infowars discrimination? No, it wasn’t. They have not targeted a wide group, they have picked on one company. Are they niche services? No, they don’t say anywhere they don’t publish content published by despicable human beings (just look at Twitter if you are in doubt), I am sure Infowars violated some T&amp;amp;Cs but again these are so broad as to make this meaningless. However, at the moment these business have no obligation to distribute his content, and by violating their T&amp;amp;Cs they are well within their rights to remove him.&lt;/p&gt;
+
+&lt;p&gt;So it really comes down to free speech, does Alex Jones have the right to say whatever he wants and not get kicked off the major platforms because of it? Should these companies be stopped from banning any legal content due to their de-facto monopoly statuses?&lt;/p&gt;
+
+&lt;p&gt;As much as it pains me to say this, no, Infowars should not have been removed. I would have much preferred to see the tech giants join together and ask for regulation or a code of conduct, but thats never going to happen given the arrogance that permeates these institutions. What we need is the so called left and right to stop arguing with each other, recognize these companies for the monopolies they are, and treat them accordingly. In the long run having a set of rules that can be referenced and a legal route where they can be challenged is in everyones best interests, even the tech companies that will never admit it.&lt;/p&gt;</content><author><name></name></author><summary type="html">I can’t say I was upset to hear about Alex Jones recent removal from social media and podcast platforms. The man is a steaming pile of garbage and I have zero sympathy for him. However, after a discussion with friends and some conversations on twitter I started thinking about my own position on censorship and what I believe is acceptable speech.</summary></entry><entry><title type="html">Rust and Swig</title><link href="http://localhost:5657/rust-and-swig/" rel="alternate" type="text/html" title="Rust and Swig" /><published>2018-08-02T00:00:00+01:00</published><updated>2018-08-02T00:00:00+01:00</updated><id>http://localhost:5657/rust-and-swig</id><content type="html" xml:base="http://localhost:5657/rust-and-swig/">&lt;p&gt;For a personal project I am working on I wanted to create Python bindings to a Rust library I am creating. The first port of call was &lt;a href=&quot;https://github.com/getsentry/milksnake&quot; title=&quot;Milksnake&quot;&gt;Milksnake&lt;/a&gt; and I wrote a Python wrapper to make it nicer to consume. However, a few weeks later I wanted wrappers for a few more languages and rather than create each one individually I decided to see if I could use a tried and trusted tool like &lt;a href=&quot;http://swig.org/&quot; title=&quot;SWIG&quot;&gt;Swig&lt;/a&gt;. What follows is a short tutorial on how to use Swig to create bindings for a Rust library.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;the-rmath-library&quot;&gt;The rmath library&lt;/h2&gt;
+
+&lt;p&gt;We will write a simple library with one function that takes two integers and adds them, returning the sum. First we create a new Rust crate.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;cargo init &lt;span class=&quot;nt&quot;&gt;--lib&lt;/span&gt; rmath&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;We add the following function to &lt;code class=&quot;highlighter-rouge&quot;&gt;src/lib.rs&lt;/code&gt; and edit the test:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span class=&quot;k&quot;&gt;pub&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;u32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;u32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;u32&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;#[cfg(test)]&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;mod&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tests&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    
+    &lt;span class=&quot;nd&quot;&gt;#[test]&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;it_works&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nd&quot;&gt;assert_eq!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;And now run cargo test to make sure it all works.&lt;/p&gt;
+
+&lt;h3 id=&quot;the-rmath-c-library&quot;&gt;The rmath C library&lt;/h3&gt;
+
+&lt;p&gt;Now we need to expose this as a C API. We could edit our sum function so it is C compatible but it would make usage from Rust awkward. We could also just add another function to this crate that exposes a C compatible version but if you are creating a real library a nicer way to do it is to create a new crate that contains the C api.&lt;/p&gt;
+
+&lt;p&gt;Run&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;cargo init —-lib rmath-c&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;to create the crate for our C API. We need to update our Cargo.toml file with our dependencies and we need to tell cargo we want to build a C shared library.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-toml&quot; data-lang=&quot;toml&quot;&gt;&lt;span class=&quot;nn&quot;&gt;[lib]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;rmath_c&quot;&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;crate-type&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;[&quot;cdylib&quot;]&lt;/span&gt;
+
+&lt;span class=&quot;nn&quot;&gt;[build-dependencies]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;cbindgen&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;0.6&quot;&lt;/span&gt;
+
+&lt;span class=&quot;nn&quot;&gt;[dependencies]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;rmath&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;0.1.0&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;path&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;..&quot;&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;libc&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;0.2&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now, we will create a C “friendly” function in &lt;code class=&quot;highlighter-rouge&quot;&gt;src/lib.rs&lt;/code&gt; that we use to expose our sum function.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span class=&quot;k&quot;&gt;extern&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;crate&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;libc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;extern&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;crate&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rmath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;libc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;c_int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;#[no_mangle]&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;pub&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;extern&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;C&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;c_int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;c_int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;c_int&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nn&quot;&gt;rmath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;u32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;u32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;i32&lt;/span&gt;    
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Next build the crate and make sure it compiles. You should now have a shared library in &lt;code class=&quot;highlighter-rouge&quot;&gt;target/debug/&lt;/code&gt; (called librmath_c.dylib on OS X).&lt;/p&gt;
+
+&lt;p&gt;Now we need to use cbindgen to create a C header file. Create a new file called &lt;code class=&quot;highlighter-rouge&quot;&gt;build.rs&lt;/code&gt; in the same folder as your Cargo.toml file.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span class=&quot;k&quot;&gt;extern&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;crate&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cbindgen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;crate_dir&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;CARGO_MANIFEST_DIR&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.unwrap&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;mut&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;cbindgen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Config&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;.language&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;cbindgen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;Language&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nn&quot;&gt;cbindgen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;generate_with_config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;crate_dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;nf&quot;&gt;.unwrap&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+      &lt;span class=&quot;nf&quot;&gt;.write_to_file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;target/rmath.h&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;And add &lt;code class=&quot;highlighter-rouge&quot;&gt;build = &quot;build.rs&quot;&lt;/code&gt; to the package section of your Cargo.toml file.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-toml&quot; data-lang=&quot;toml&quot;&gt;&lt;span class=&quot;nn&quot;&gt;[package]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;rmath-c&quot;&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;build&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;build.rs&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Running cargo build again should create &lt;code class=&quot;highlighter-rouge&quot;&gt;target/rmath.h&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;swig&quot;&gt;Swig&lt;/h3&gt;
+
+&lt;p&gt;Finally, we will use Swig to create a Python and r bindings. First install Swig using the instructions on its &lt;a href=&quot;http://swig.org/&quot; title=&quot;SWIG&quot;&gt;website&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Then create a swig file called &lt;code class=&quot;highlighter-rouge&quot;&gt;rmath.i&lt;/code&gt; and add the following:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rmath&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;#include &quot;rmath.h&quot;
+&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;rmath.h&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This tells Swig our module is called rmath, we want to include rmath.h and we want to wrap the functions defined in rmath.h.&lt;/p&gt;
+
+&lt;p&gt;First we will build the Python package, these commands can be added to a Makefile if desired.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;mkdir python
+cp target/debug/librmath_c.dylib python/librmath.so
+cp rmath.i python/
+swig &lt;span class=&quot;nt&quot;&gt;-python&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-outdir&lt;/span&gt; python python/rmath.i
+gcc &lt;span class=&quot;nt&quot;&gt;-fPIC&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-Wno-register&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-Wall&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; python/rmath_wrap.o python/rmath_wrap.c &lt;span class=&quot;nt&quot;&gt;-Ipython&lt;/span&gt;/ &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;python2-config &lt;span class=&quot;nt&quot;&gt;--includes&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+gcc &lt;span class=&quot;nt&quot;&gt;-Wno-deprecated-register&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-shared&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; python/_rmath.so python/rmath_wrap.o &lt;span class=&quot;nt&quot;&gt;-Lpython&lt;/span&gt;/ &lt;span class=&quot;nt&quot;&gt;-lrmath&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-lpython&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now we cd into the python folder and fire up Python:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;Python 2.7.14 |Anaconda, Inc.| &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;default, Oct 5 2017, 02:28:52&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;GCC 4.2.1 Compatible Clang 4.0.1 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;tags/RELEASE_401/final&lt;span class=&quot;o&quot;&gt;)]&lt;/span&gt; on darwin
+Type &lt;span class=&quot;s2&quot;&gt;&quot;help&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;copyright&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;credits&quot;&lt;/span&gt; or &lt;span class=&quot;s2&quot;&gt;&quot;license&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more information.
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; import rmath
+Fatal Python error: PyThreadState_Get: no current thread
+Abort &lt;span class=&quot;nb&quot;&gt;trap&lt;/span&gt;: 6&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Oh! If you get an error like this it means the version of Python you linked against is different to the one you are running. By specifying ‘-lpython’ it is likely you linked against your default system Python rather than another install that may be in your path, so we you may need to try again using your system Python.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;Python 2.7.10 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;default, Feb 7 2017, 00:08:15&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;GCC 4.2.1 Compatible Apple LLVM 8.0.0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;clang-800.0.34&lt;span class=&quot;o&quot;&gt;)]&lt;/span&gt; on darwin
+Type &lt;span class=&quot;s2&quot;&gt;&quot;help&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;copyright&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;credits&quot;&lt;/span&gt; or &lt;span class=&quot;s2&quot;&gt;&quot;license&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more information.
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; import rmath
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; rmath.sum&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2, 3&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+5&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Excellent. You can now package up &lt;code class=&quot;highlighter-rouge&quot;&gt;rmath.py&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;_rmath.so&lt;/code&gt; and use your Rust library from Python.&lt;/p&gt;
+
+&lt;p&gt;Finally, we will use the same swig file to create r bindings.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;mkdir r
+cp target/debug/librmath_c.dylib r/librmath.so
+cp target/rmath.h r/rmath.h
+cp rmath.i r/
+swig &lt;span class=&quot;nt&quot;&gt;-r&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-outdir&lt;/span&gt; r r/rmath.i	
+&lt;span class=&quot;nv&quot;&gt;PKG_LIBS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;r/librmath.so&quot;&lt;/span&gt; R CMD SHLIB r/rmath_wrap.c &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; r/rmath.so&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now if we cd into the r folder and fire up the r interperator:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;R version 3.5.1 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2018-07-02&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Feather Spray&quot;&lt;/span&gt;
+Type &lt;span class=&quot;s1&quot;&gt;'q()'&lt;/span&gt; to quit R.
+
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; dyn.load&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;paste&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rmath&quot;&lt;/span&gt;, .Platform&lt;span class=&quot;nv&quot;&gt;$dynlib&lt;/span&gt;.ext, &lt;span class=&quot;nv&quot;&gt;sep&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rmath.R&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; cacheMetaData&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; sum&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;88, 99&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1] 187&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;we can use the same Rust function.&lt;/p&gt;
+
+&lt;h3 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Rust is a very promising language and as we have seen, using mature tools such as Swig it is very easy to tip your toe in the water and start including Rust libraries in your existing Python and r projects where you may need a perfromance boast or wish to take advantage of Rusts type safety and &lt;a href=&quot;https://blog.Rust-lang.org/2015/04/10/Fearless-Concurrency.html&quot; title=&quot;Fearless Concurrency&quot;&gt;fearless concurrency&lt;/a&gt;. The full project can be downloaded from &lt;a href=&quot;https://github.com/prio/rmath&quot; title=&quot;rmath github repo&quot;&gt;github&lt;/a&gt;.&lt;/p&gt;</content><author><name></name></author><summary type="html">For a personal project I am working on I wanted to create Python bindings to a Rust library I am creating. The first port of call was Milksnake and I wrote a Python wrapper to make it nicer to consume. However, a few weeks later I wanted wrappers for a few more languages and rather than create each one individually I decided to see if I could use a tried and trusted tool like Swig. What follows is a short tutorial on how to use Swig to create bindings for a Rust library.</summary></entry><entry><title type="html">Integrate Django with Keycloak</title><link href="http://localhost:5657/static/integrate-django-with-keycloak" rel="alternate" type="text/html" title="Integrate Django with Keycloak" /><published>2017-02-19T00:00:00+00:00</published><updated>2017-02-19T00:00:00+00:00</updated><id>http://localhost:5657/static/integrate-django-with-keycloak</id><content type="html" xml:base="http://localhost:5657/static/integrate-django-with-keycloak">&lt;p&gt;&lt;a href=&quot;http://www.keycloak.org/&quot;&gt;Keycloak&lt;/a&gt; is an open source &lt;a href=&quot;https://en.wikipedia.org/wiki/Identity_management&quot;&gt;identity and access management (IAM)&lt;/a&gt; and &lt;a href=&quot;https://en.wikipedia.org/wiki/Single_sign-on&quot;&gt;single sign on (SSO)&lt;/a&gt; solution from &lt;a href=&quot;https://www.redhat.com/&quot;&gt;Redhat&lt;/a&gt;. If you have multiple web applications or services that require authentication, keycloak saves you from having to write the same authentication code over and over again, and allows your users to authenticate against multiple applications without having to log in multiple times. In this post I will show how to set up Keycloak running locally, and how to use it as the authentication provider for a &lt;a href=&quot;https://www.djangoproject.com/&quot;&gt;Django&lt;/a&gt; application. This post uses Python 3.x.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;setup-keycloak&quot;&gt;Setup Keycloak&lt;/h1&gt;
+
+&lt;p&gt;Keycloak is distributed as a standalone server so is a doddle to get it up and running. Download the latest archive from the &lt;a href=&quot;http://www.keycloak.org/&quot;&gt;Keycloak&lt;/a&gt; website (we will be using 2.5.1 for this post), unzip it and run the &lt;code class=&quot;highlighter-rouge&quot;&gt;bin/standalone.sh&lt;/code&gt; file to start the server.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Screen-Shot-2017-02-16-at-10-30-33.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You can now visit &lt;a href=&quot;http://localhost:8080/auth/&quot;&gt;http://localhost:8080/auth/&lt;/a&gt; to check your installation is running correctly (it can take a few minutes to start up so don’‘t panic if you get a 404 error initially). Create an administrator user, open the &lt;a href=&quot;http://localhost:8080/auth/admin/&quot;&gt;Administration Console&lt;/a&gt; and login.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Screen-Shot-2017-02-16-at-10-32-35.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Once logged in you are at the &lt;code class=&quot;highlighter-rouge&quot;&gt;Master&lt;/code&gt; realm. This is the realm used to create other realms. A realm contains all the users, groups etc. associated with a set of applications and services. Hover over the &lt;code class=&quot;highlighter-rouge&quot;&gt;Master&lt;/code&gt; menu item and click on &lt;code class=&quot;highlighter-rouge&quot;&gt;Add realm&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Screen-Shot-2017-02-16-at-10-37-41.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Call it sample and click create.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Screen-Shot-2017-02-16-at-10-38-52.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Select &lt;code class=&quot;highlighter-rouge&quot;&gt;Users&lt;/code&gt; from the side menu and create a new user called &lt;code class=&quot;highlighter-rouge&quot;&gt;webuser&lt;/code&gt; (this user will be able to log in to the Django app).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Screen-Shot-2017-02-16-at-10-39-09.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Once created, set a temporary password for the user.&lt;/p&gt;
+
+&lt;p&gt;Finally we need to create a &lt;code class=&quot;highlighter-rouge&quot;&gt;client&lt;/code&gt; to represent our Django application.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Screen-Shot-2017-02-16-at-11-09-34.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Select &lt;code class=&quot;highlighter-rouge&quot;&gt;Clients&lt;/code&gt; from the side menu and Add a new client. Call it &lt;code class=&quot;highlighter-rouge&quot;&gt;webapp&lt;/code&gt; and hit save.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Screen-Shot-2017-02-16-at-11-25-34.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Finally update the valid redirect uris to be &lt;code class=&quot;highlighter-rouge&quot;&gt;http://localhost:8000/*&lt;/code&gt; (the url of Django running locally).&lt;/p&gt;
+
+&lt;p&gt;This is all we need to do to get started.&lt;/p&gt;
+
+&lt;p&gt;You can easily theme the log in pages, allow user registration, password resets, email verification, social logins etc. using the admin console so explore and read the  &lt;a href=&quot;http://www.keycloak.org/documentation.html&quot;&gt;documentation&lt;/a&gt; to see whats possible.&lt;/p&gt;
+
+&lt;h1 id=&quot;set-up-django&quot;&gt;Set up Django&lt;/h1&gt;
+
+&lt;p&gt;First we need to install the &lt;a href=&quot;https://github.com/jhuapl-boss/boss-oidc&quot;&gt;Django OIDC libraries&lt;/a&gt;. &lt;strong&gt;These are Python 3 libraries.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ pip install git+https://github.com/jhuapl-boss/django-oidc.git
+$ pip install git+https://github.com/jhuapl-boss/drf-oidc-auth.git
+$ pip install git+https://github.com/jhuapl-boss/boss-oidc.git
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Next we create a new django project and application.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ django-admin startproject keycloakexample
+$ cd keycloakexample/
+$ python manage.py startapp demo
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Now we need to modify our settings.py file. Add &lt;code class=&quot;highlighter-rouge&quot;&gt;bossoidc, djangooidc and demo&lt;/code&gt; to our &lt;code class=&quot;highlighter-rouge&quot;&gt;INSTALLED_APPS&lt;/code&gt; list, and add an &lt;code class=&quot;highlighter-rouge&quot;&gt;AUTHENTICATION_BACKENDS&lt;/code&gt; tuple.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INSTALLED_APPS = [
+    ''django.contrib.admin'',
+    ''django.contrib.auth'',
+    ''django.contrib.contenttypes'',
+    ''django.contrib.sessions'',
+    ''django.contrib.messages'',
+    ''django.contrib.staticfiles'',
+    ''bossoidc'',
+    ''djangooidc'',  
+    ''demo'',
+]
+
+AUTHENTICATION_BACKENDS = (
+    ''django.contrib.auth.backends.ModelBackend'',
+    ''bossoidc.backend.OpenIdConnectBackend'',
+)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;We also need to add a few settings to setup our OIDC (Keycloak) provider.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;auth_uri = &quot;http://localhost:8080/auth/realms/sample&quot;
+client_id = &quot;webapp&quot;
+public_uri = &quot;http://localhost:8000&quot;
+
+from bossoidc.settings import *
+configure_oidc(auth_uri, client_id, public_uri)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Next, make any migrations required by the &lt;code class=&quot;highlighter-rouge&quot;&gt;bossoidc&lt;/code&gt; application and apply all migrations.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ python manage.py makemigrations bossoidc
+$ python manage.py migrate
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Now we can add the urls we need. Change urls.py to read&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;from django.conf.urls import url, include
+from django.contrib import admin
+
+urlpatterns = [
+    url(r'''', include(''demo.urls'')),
+    url(r''^admin/'', admin.site.urls),
+    url(r''openid/'', include(''djangooidc.urls'')),
+]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Finally, lets change our demo app to show the authentication working. Create &lt;code class=&quot;highlighter-rouge&quot;&gt;demo/urls.py&lt;/code&gt; and add the following.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;from django.conf.urls import url
+from . import views
+
+urlpatterns = [
+    url(r''^$'', views.index, name=''index''),
+    url(r''^secure$'', views.secure, name=''secure''),
+]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Add the following to &lt;code class=&quot;highlighter-rouge&quot;&gt;demo/views.py&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+
+
+def index(request):
+    return HttpResponse(''You\''re at the index. &amp;lt;a href=&quot;/secure&quot;&amp;gt;Secure&amp;lt;/a&amp;gt;'')
+
+@login_required
+def secure(request):
+    return HttpResponse(''Secure page. &amp;lt;a href=&quot;/openid/logout&quot;&amp;gt;Logout&amp;lt;/a&amp;gt;'')    
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;We can now start our django app as normal.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ python manage.py runserver
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Screen-Shot-2017-02-16-at-11-24-58.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now when we visit &lt;code class=&quot;highlighter-rouge&quot;&gt;http://localhost:8000&lt;/code&gt; we get a very simple index page. Clicking on the &lt;code class=&quot;highlighter-rouge&quot;&gt;Secure&lt;/code&gt; link will redirect you to the keycloak log in page.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Screen-Shot-2017-02-16-at-11-26-52.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Enter the username and password you previously created. You will then be redirected to a screen asking you to change the temporary password. Once you change the password you will be redirected to the Django secure page.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Screen-Shot-2017-02-16-at-11-27-18.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;It is very easy to get started with keycloak and it offers many tried and tested features that would take significant effort to reimplement yourself. Implementing authentication has always been a tedious and difficult to get right task. If you plan to use microservices or multiple web applications as part of your solution, keycloak can save you significant work and prevent your users from having to log in to the multiple different applications.&lt;/p&gt;</content><author><name></name></author><summary type="html">Keycloak is an open source identity and access management (IAM) and single sign on (SSO) solution from Redhat. If you have multiple web applications or services that require authentication, keycloak saves you from having to write the same authentication code over and over again, and allows your users to authenticate against multiple applications without having to log in multiple times. In this post I will show how to set up Keycloak running locally, and how to use it as the authentication provider for a Django application. This post uses Python 3.x.</summary></entry><entry><title type="html">The Amiga</title><link href="http://localhost:5657/the-amiga/" rel="alternate" type="text/html" title="The Amiga" /><published>2017-01-14T00:00:00+00:00</published><updated>2017-01-14T00:00:00+00:00</updated><id>http://localhost:5657/the-amiga</id><content type="html" xml:base="http://localhost:5657/the-amiga/">&lt;p&gt;The Amiga 500+ wasn’t my first computer when I was a child (the ZX Spectrum has that honor), but it was the one I received at the age when I wanted to do more than just play games and for that reason it stands out in my memory as being something a bit special. With the demise of Commodore and the onset of my teenage years, I  drifted away from computers for a while only occasionally playing a Playstation at a friends houses. It wasn’‘t until I started University that I got interested and excited by computers again. That period of my life was Linux, the free software movement and learning to code. When I began working, and had some cash I moved to Macs and I stopped spending my evenings compiling kernels. It is only in the past year or so I have started to take a look back at the 8-bit and 16-bit systems of my youth and appreciate them anew.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+&lt;p&gt;As I delve back into the Amiga community, I am continuously surprised and delighted by its size, its enthusiasm and at the directions it has taken since the bankruptcy of Commodore back in the 90s.&lt;/p&gt;
+
+&lt;h1 id=&quot;hardware&quot;&gt;Hardware&lt;/h1&gt;
+
+&lt;p&gt;The hardware that was available from Commodore in the 80’’s and 90’’s is known as “classic” hardware. These systems are based on the Motorola 68000 (68k) CPU and a number of custom chipsets created by Commodore. Older Amigas use OCS (Original Chip Set) components or the slightly improved ECS (Enhanced Chip Set) components, whereas the newer Amigas, A4000, A1200 and the CD32 use the AGA (Advanced Graphics Architecture) chipset. Classic hardware is still the most widely used Amiga hardware today and a cottage industry has sprung up making add-ons and accelerators that help keep these systems usable. The easiest way to see what is available is to browse a few of the online Amiga stores and see what they offer.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://icomp.de/shop-icomp/en/&quot;&gt;Individual Computers&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://amigastore.eu/en/&quot;&gt;AmigaStore&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://amigakit.leamancomputing.com/&quot;&gt;AmigaKit&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.amigashop.org/&quot;&gt;AmigaShop&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.vesalia.de/&quot;&gt;Vesalia&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If you are buying some classic hardware, or still have some up in the attic, it is worth getting the capacitors on the board replaced to prevent leaks from damaging the mainboard. This is something you can do yourself (plenty of youtube videos on the subject), or there are a few companies that will do it for you, &lt;a href=&quot;http://amigakit.leamancomputing.com/catalog/product_info.php?products_id=932&quot;&gt;Leaman Computing&lt;/a&gt; being one example.&lt;/p&gt;
+
+&lt;p&gt;If you do plan to buy a classic Amiga, I would suggest you go with an A600 or an A1200. The PCMCIA slot and IDE interface on both makes it inexpensive to add a compact flash hard drive and a network card which improves the usability of the system no end. Also note the easiest way to get them working with your TV is using a SCART connection, so don’‘t throw out your old TV just yet.&lt;/p&gt;
+
+&lt;h2 id=&quot;apollo&quot;&gt;Apollo&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.apollo-accelerators.com/&quot;&gt;The Apollo team&lt;/a&gt; deserves their own section due to the ambition of what they have set out to achieve. While manufacturors like &lt;a href=&quot;https://icomp.de/shop-icomp/en/&quot;&gt;Individual Computers&lt;/a&gt; are building more traditional accelerators for classic hardware, the Apollo team have created the aptly named Vampire Accelerator. They call it an accelerator, but it is much more. They have effectively replicated most of the Amigas chipset on an FPGA (more below) and though it is installed in your Amiga case and you use the same keyboard and power supply etc. it is more of a mainboard replacement than a traditional accelerator. It allows you to use SD cards, has HDMI output, adds RAM and serious CPU power to your classic system. They are also working on a version that will extend the AGA instruction set. They really are only one step away from creating brand new 68k compatible Amiga mainboards. There are many sold at this stage but I am still in the queue to purchase one, it appears the team underestimated how excited people would be about the work they are doing.&lt;/p&gt;
+
+&lt;h2 id=&quot;next-gen-amiga&quot;&gt;Next Gen Amiga&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/A1_X1000_case.jpg&quot; alt=&quot;Amiga X1000&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The other main type of hardware available that still has the Amiga brand, are the machines being built by &lt;a href=&quot;http://a-eon.biz/&quot;&gt;A-EON&lt;/a&gt;. This company seems to be a labour of love by a few wealthy Amiga fans that wanted modern Amiga hardware. It is &lt;strong&gt;not binary&lt;/strong&gt; compatible with classic Amiga hardware (it is PowerPc based rather than Motorola 68k based) and uses a more modern version of the Amiga operating system called &lt;a href=&quot;https://en.wikipedia.org/wiki/AmigaOS_4&quot;&gt;AmigaOS 4&lt;/a&gt;. Older Amiga software can be used via emulation or can be ported where the source is available.&lt;/p&gt;
+
+&lt;h2 id=&quot;fpga-systems&quot;&gt;FPGA Systems&lt;/h2&gt;
+
+&lt;p&gt;An FPGA circuit is one which can be programmed to behave like another circuit and chipset. For example, you can take a FPGA, and program it to behave like an old &lt;a href=&quot;http://www.specnext.com/&quot;&gt;Spectrum&lt;/a&gt; or an Amiga. The advantage of FPGA emulation over software emulation is that you get a much better representation of a real Amiga, as you are not at the mercy of a host operating system.&lt;/p&gt;
+
+&lt;p&gt;There has been a number of FPGA projects in the past, &lt;a href=&quot;https://en.wikipedia.org/wiki/Minimig&quot;&gt;Minimig&lt;/a&gt; is probably the name you will come across most often, but the only project with a product for sale at the moment is the &lt;a href=&quot;http://harbaum.org/till/mist/index.shtml&quot;&gt;MiST&lt;/a&gt;. It will set you back around €200 but what you get is a hardware device that behaves just like a classic Amiga. The really exciting thing about this project is that both the hardware designs and the “core” that emulates the Amiga are &lt;a href=&quot;https://github.com/mist-developen&quot;&gt;Open source&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;emulators&quot;&gt;Emulators&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Amiga_Forever_2008_on_Vista.png&quot; alt=&quot;Amiga Forever&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;An Emulator is a piece of software that emulates a piece of hardware. The most widely used Amiga emulator is &lt;a href=&quot;https://en.wikipedia.org/wiki/UAE_(emulator)&quot;&gt;UAE&lt;/a&gt; via its various ports and forks. Two of the more popular versions being &lt;a href=&quot;http://www.winuae.net/&quot;&gt;WinUAE&lt;/a&gt; and &lt;a href=&quot;https://fs-uae.net/&quot;&gt;FS-UAE&lt;/a&gt;. These emulators are quiet stable and performant, and you really don’‘t need to own Amiga hardware to use your old Amiga favorites. However, setup and configuration is quiet involved and can be off putting to newcomers. The easiest way to emulate an Amiga is using the &lt;a href=&quot;https://www.amigaforever.com/&quot;&gt;Amiga Forever&lt;/a&gt; product from Cloanto which includes all the files you need and an easy to use user interface.&lt;/p&gt;
+
+&lt;h1 id=&quot;operating-systems&quot;&gt;Operating Systems&lt;/h1&gt;
+
+&lt;p&gt;A myriad of operating systems, both new and old, are now used by Amigans.&lt;/p&gt;
+
+&lt;h2 id=&quot;workbench--amigaos&quot;&gt;Workbench &amp;amp; AmigaOS&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/AmigaOS_4-1_Update_2.png&quot; alt=&quot;AmigaOS 4.1&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This was the name of the operating system originally released with Commodore Amigas in the 80s and 90s. The last version of the OS released using the Workbench name was 3.1. It was the last Commodore release.&lt;/p&gt;
+
+&lt;p&gt;After the demise of Commodore, Haage &amp;amp; Partner were commissioned to release a new version of the Amiga operating system. From this release onwards the OS was rebranded AmigaOS and Workbench was used to describe the graphical file manager. Later 3.x versions were aimed at 68k hardware machines, and could take advantage of PowerPc accelerators if they were attached (using a kernel called WarpOS). From Amiga 4.0 onwards PowerPC has become the main target platform, although 4.1 classic can still be run on 68k hardware if you have a PowerPC accelerator. The name change (and new kernels) confused me quiet a bit initially.&lt;/p&gt;
+
+&lt;style type=&quot;text/css&quot;&gt;
+table.gridtable {
+	font-family: verdana,arial,sans-serif;
+	font-size:11px;
+	color:#333333;
+	border-width: 1px;
+	border-color: #666666;
+	border-collapse: collapse;
+}
+table.gridtable th {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #dedede;
+}
+table.gridtable td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #ffffff;
+}
+&lt;/style&gt;
+
+&lt;table class=&quot;gridtable&quot;&gt;
+&lt;tr&gt;
+&lt;th&gt;Operating System&lt;/th&gt;
+&lt;th&gt;Version&lt;/th&gt;
+&lt;th&gt;Developer&lt;/th&gt;
+&lt;th&gt;Shipped With&lt;/th&gt;
+&lt;th&gt;Primary Target Platform&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Workbench&lt;/td&gt;
+&lt;td&gt;1.x&lt;/td&gt;
+&lt;td&gt;Commodore&lt;/td&gt;
+&lt;td&gt;1000, 2000, 500, CDTV&lt;/td&gt;
+&lt;td&gt;Classic Amigas&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Workbench&lt;/td&gt;
+&lt;td&gt;2.x&lt;/td&gt;
+&lt;td&gt;Commodore&lt;/td&gt;
+&lt;td&gt;3000, 500+, 600&lt;/td&gt;
+&lt;td&gt;Classic Amigas&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Workbench&lt;/td&gt;
+&lt;td&gt;3.0, 3.1&lt;/td&gt;
+&lt;td&gt;Commodore&lt;/td&gt;
+&lt;td&gt;4000, 1200, CD32&lt;/td&gt;
+&lt;td&gt;Classic Amigas&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;AmigaOS (incl WarpOS)&lt;/td&gt;
+&lt;td&gt;3.5, 3.9&lt;/td&gt;
+&lt;td&gt;Haage &amp;amp; Partner&lt;/td&gt;
+&lt;td&gt;None&lt;/td&gt;
+&lt;td&gt;Classic Amigas&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;AmigaOS&lt;/td&gt;
+&lt;td&gt;4.x&lt;/td&gt;
+&lt;td&gt;Hyperion Entertainment&lt;/td&gt;
+&lt;td&gt;AmigaOne Systems&lt;/td&gt;
+&lt;td&gt;PowerPC Amigas&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;morphos&quot;&gt;MorphOS&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/AmbientDesktop.png&quot; alt=&quot;MorpOS Ambient Desktop&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.morphos-team.net/&quot;&gt;MorphOS&lt;/a&gt; is an Amiga like operating system used by many in the Amiga community. It uses much of the same software as Workbech/AmigaOS and offers API compatibility with Workbench 3.1 One of its main draws is that it runs on old PowerPC Apple hardware that can be picked up relatively cheaply on eBay. It can also be run on A4000 &amp;amp; A1200 with PowerPc accelerators and on Genesi and ACube hardware.&lt;/p&gt;
+
+&lt;p&gt;If you want a Next Gen Amiga but don’‘t want to commit to the price of an AmigaOne machine, or you have an old PowerPC Mac lying around, it is definitely worth a look.&lt;/p&gt;
+
+&lt;h2 id=&quot;aros&quot;&gt;AROS&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Icaros131.jpg&quot; alt=&quot;AROS Desktop&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://aros.sourceforge.net/&quot;&gt;AROS&lt;/a&gt; is an open source Amiga like operating system. It was originally targeted at x86 hardware but has since been ported to PowerPC, 68k (so you can run it on classic Amigas) and Arm (the Raspberry Pi). Like MorphOS is has API compatibility with Workbench 3.1 and it is binary compatible when run on classic Amigas. I think having an open source cross platform Amiga OS than can run on Amigas, Laptops and Raspberry Pis is a very exciting prospect, and I can’‘t wait to delve deeper into this project.&lt;/p&gt;
+
+&lt;h1 id=&quot;resources&quot;&gt;Resources&lt;/h1&gt;
+
+&lt;p&gt;There are plenty of resources both on and offline, here are a few of my favorites.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Software:&lt;/strong&gt; Like most things, Amiga software is scattered all over the web, but the main central repository is still &lt;a href=&quot;http://aminet.net/&quot;&gt;Aminet&lt;/a&gt;. I was never able to get my Amiga online when I was younger (too expensive for a 10 year old) so it is nice to finally be able to use Aminet after all these years. Software can also be purchased from some of the shops I mentioned above, and &lt;a href=&quot;http://amiga.net.pl/index.php?kwt=4191&amp;amp;hss=1&amp;amp;lng=eng&quot;&gt;Amiga.net.pl&lt;/a&gt; seems to be the preferred publisher for new Amiga games at the moment (yes, new Classic Amiga games in 2017). And productivity applications like Personal Paint and more can be purchased from the &lt;a href=&quot;http://www.amistore.net/&quot;&gt;AmiStore&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/Amiga_Format_magazine_-issue_136_-_front_cover-.jpg&quot; alt=&quot;Last issue of Amiga Format&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Magazines:&lt;/strong&gt; &lt;a href=&quot;http://www.amigafuture.de/&quot;&gt;Amiga Future&lt;/a&gt; is an English and German magazine still being published. I still enjoy reading Computer magazines and plan to treat myself to a subscription this year. And although it is not Amiga specific, &lt;a href=&quot;http://www.retrogamer.net/&quot;&gt;Retro Gamer&lt;/a&gt; is also worth a look. It covers older games and features interviews and in-depth articles that you just don’‘t see online. Scans of older Amiga magazines are also available for free on the &lt;a href=&quot;https://archive.org/details/computermagazines&quot;&gt;Internet Archive&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Podcasts:&lt;/strong&gt; &lt;a href=&quot;http://www.amigospodcast.com/&quot;&gt;Amigos&lt;/a&gt; is an American Amiga podcast that covers a lot of classic Amiga games and hardware. &lt;a href=&quot;http://amicast.ppa.pl/&quot;&gt;Amicast&lt;/a&gt; is a great podcast from Poland (but presented in english) that focuses on Next Gen Amigas and also has some great interviews with members of the Amiga community and people from the Amigas history. And finally, although not solely Amiga focused, the &lt;a href=&quot;http://www.theretrohour.com/&quot;&gt;Retro hour&lt;/a&gt; is one of my favorite podcasts. Hosted by two big Amiga fans its a great place for the latest Amiga news and some great interviews.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;News sites and Forums:&lt;/strong&gt; &lt;a href=&quot;http://www.lemonamiga.com/&quot;&gt;Lemon Amiga&lt;/a&gt;, &lt;a href=&quot;http://amiga-news.de/en/&quot;&gt;Amiga News&lt;/a&gt;, &lt;a href=&quot;http://www.indieretronews.com/&quot;&gt;Indie Retro News&lt;/a&gt; , &lt;a href=&quot;http://eab.abime.net/&quot;&gt;English Amiga Board&lt;/a&gt; and &lt;a href=&quot;http://www.amibay.com/are&quot;&gt;AmiBay&lt;/a&gt; are sites I keep an eye on for the latest Amiga news.&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;The Amiga community is still very active and vibrant, over 30 years on from the release of the first Amiga 1000. The continued enthusiasm this Computer generates continues to surprise me. And community led developments such as MiST and AROS, and commercial led projects like Next Gen Hardware and Apollo accelerators hopefully mean the Amiga will continue to be an interesting platform far into the future.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Images in this post under CC license, thanks to Bill Bertram, Paolo Besser&lt;/em&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">The Amiga 500+ wasn’t my first computer when I was a child (the ZX Spectrum has that honor), but it was the one I received at the age when I wanted to do more than just play games and for that reason it stands out in my memory as being something a bit special. With the demise of Commodore and the onset of my teenage years, I drifted away from computers for a while only occasionally playing a Playstation at a friends houses. It wasn’‘t until I started University that I got interested and excited by computers again. That period of my life was Linux, the free software movement and learning to code. When I began working, and had some cash I moved to Macs and I stopped spending my evenings compiling kernels. It is only in the past year or so I have started to take a look back at the 8-bit and 16-bit systems of my youth and appreciate them anew.</summary></entry><entry><title type="html">Elixir and Jupyter</title><link href="http://localhost:5657/elixir-and-jupyter/" rel="alternate" type="text/html" title="Elixir and Jupyter" /><published>2015-09-30T00:00:00+01:00</published><updated>2015-09-30T00:00:00+01:00</updated><id>http://localhost:5657/elixir-and-jupyter</id><content type="html" xml:base="http://localhost:5657/elixir-and-jupyter/">&lt;p&gt;When using Python I rely heavily on &lt;a href=&quot;https://jupyter.org/&quot;&gt;Jupyter&lt;/a&gt; (nee iPython) and now that they are pushing multi-language support I am excited to see what other language communities do with it. In this post I will look at setting it up with an Elixir kernel.
+&lt;!--excerpt--&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;setup&quot;&gt;Setup&lt;/h2&gt;
+
+&lt;p&gt;First install Jupyer using conda or pip. I recommend using the &lt;a href=&quot;http://continuum.io/downloads&quot;&gt;Anaconda&lt;/a&gt; distribution and the conda package manager if possible. If using anaconda, a simple&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ conda install jupyter
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;should be enough to get you started.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; The jupyter binary and its associated commands (jupyter-console, jupyter-notebook etc.) must be on your path otherwise you will get a message such as &lt;em&gt;jupyter: ‘‘notebook’’ is not a Jupyter command&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Next, we need to install and configure the &lt;em&gt;IElixir&lt;/em&gt; kernel.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ git clone https://github.com/pprzetacznik/IElixir.git
+$ cd IElixir
+$ mix deps.get
+$ MIX_ENV=prod mix compile
+$ sh install_script.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; IElixir states it needs 1.1.0-dev but I am running it with 1.0.5 and it seems to work fine. (Just edit the mix.exs file if you need to downgrade.)&lt;/p&gt;
+
+&lt;h2 id=&quot;create-a-notebook&quot;&gt;Create a notebook&lt;/h2&gt;
+
+&lt;p&gt;Jupyter provides a number of different interfaces but by far my favorite is the &lt;em&gt;notebook&lt;/em&gt;, a HTML interface similar to the Mathematica interface. To create a notebook with the IElixir kernel, run&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ jupyter notebook
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Your browser should open the interface (if it doesn’‘t point it at &lt;a href=&quot;http://localhost:8888&quot;&gt;http://localhost:8888&lt;/a&gt;). When you select the new menu item, ielxir should be an option&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/Screen-Shot-2015-09-08-at-17-01-00.png&quot;&gt;Jupyter Interface&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;You can now enter any code that you would enter into an iex session, and save that code as a document for reference or editing later.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/images/Screen-Shot-2015-09-08-at-17-03-38-1.png&quot;&gt;Jupyter IElixir Kernel&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;It is very easy to set up Jupyter to use Elixir thanks to the great work by &lt;a href=&quot;https://twitter.com/pprzetacznik&quot;&gt;Piotr Przetacznik&lt;/a&gt;. Check it out and see what it can do, its definitely a tool worth having in your toolbox.&lt;/p&gt;</content><author><name></name></author><summary type="html">When using Python I rely heavily on Jupyter (nee iPython) and now that they are pushing multi-language support I am excited to see what other language communities do with it. In this post I will look at setting it up with an Elixir kernel.</summary></entry></feed>

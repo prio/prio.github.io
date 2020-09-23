@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!-- Document Settings -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Base Meta -->
+    <!-- dynamically fixing the title for tag/author pages -->
+
+
+
+    <title>A Custom Query Language</title>
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Styles'n'Scripts -->
+    <link rel="stylesheet" type="text/css" href="/assets/built/screen.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/built/screen.edited.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/built/syntax.css" />
+    <!-- highlight.js -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <style>.hljs { background: none; }</style>
+
+    <!--[if IE]>
+        <style>
+            p, ol, ul{
+                width: 100%;
+            }
+            blockquote{
+                width: 100%;
+            }
+        </style>
+    <![endif]-->
+    
+    <!-- This tag outputs SEO meta+structured data and other important settings -->
+    <meta name="description" content="Just my thoughts, right or wrong" />
+    <link rel="shortcut icon" href="http://localhost:5657/assets/images/favicon.png" type="image/png" />
+    <link rel="canonical" href="http://localhost:5657/custom-query-language/" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+
+     <!--title below is coming from _includes/dynamic_title-->
+    <meta property="og:site_name" content="Jonathan Harrington" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="A Custom Query Language" />
+    <meta property="og:description" content="Just my thoughts, right or wrong" />
+    <meta property="og:url" content="http://localhost:5657/custom-query-language/" />
+    <meta property="og:image" content="http://localhost:5657/images/query.jpg" />
+    <meta property="article:publisher" content="https://www.facebook.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="A Custom Query Language" />
+    <meta name="twitter:description" content="Just my thoughts, right or wrong" />
+    <meta name="twitter:url" content="http://localhost:5657/" />
+    <meta name="twitter:image" content="http://localhost:5657/images/query.jpg" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Jonathan Harrington" />
+    <meta name="twitter:site" content="@jonathanharring" />
+    <meta name="twitter:creator" content="@jonathanharring" />
+    <meta property="og:image:width" content="2000" />
+    <meta property="og:image:height" content="666" />
+
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Website",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Jonathan Harrington",
+        "logo": "http://localhost:5657/"
+    },
+    "url": "http://localhost:5657/custom-query-language/",
+    "image": {
+        "@type": "ImageObject",
+        "url": "http://localhost:5657/images/query.jpg",
+        "width": 2000,
+        "height": 666
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:5657/custom-query-language/"
+    },
+    "description": "Just my thoughts, right or wrong"
+}
+    </script>
+
+    <!-- <script type="text/javascript" src="https://demo.ghost.io/public/ghost-sdk.min.js?v=724281a32e"></script>
+    <script type="text/javascript">
+    ghost.init({
+    	clientId: "ghost-frontend",
+    	clientSecret: "f84a07a72b17"
+    });
+    </script> -->
+
+    <meta name="generator" content="Jekyll 3.6.2" />
+    <link rel="alternate" type="application/rss+xml" title="A Custom Query Language" href="/feed.xml" />
+
+
+</head>
+<body class="post-template">
+
+    <div class="site-wrapper">
+        <!-- All the main content gets inserted here, index.hbs, post.hbs, etc -->
+        <!-- default -->
+
+<!-- The tag above means: insert everything in this file
+into the {body} of the default.hbs template -->
+
+<header class="site-header outer">
+    <div class="inner">
+        <nav class="site-nav">
+    <div class="site-nav-left">
+        
+            
+                <a class="site-nav-logo" href="http://localhost:5657/">Jonathan Harrington</a>
+            
+        
+        
+            <ul class="nav" role="menu">
+    <li class="nav-home" role="menuitem"><a href="/">Home</a></li>
+    <li class="nav-about" role="menuitem"><a href="/about/">About</a></li>
+</ul>
+
+        
+    </div>
+    <div class="site-nav-right">
+        <div class="social-links">
+            
+                <a class="social-link social-link-tgh" href="https://github.com/prio" target="_blank" rel="noopener"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub icon</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+            
+            
+                <a class="social-link social-link-tli" href="https://www.linkedin.com/in/jnharrington" target="_blank" rel="noopener"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>LinkedIn icon</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+                                    
+            
+                <a class="social-link social-link-tw" href="https://twitter.com/jonathanharring" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
+</a>
+            
+        </div>
+        
+    </div>
+</nav>
+
+    </div>
+</header>
+
+<!-- Everything inside the #post tags pulls data from the post -->
+<!-- #post -->
+
+<main id="site-main" class="site-main outer" role="main">
+    <div class="inner">
+
+        <article class="post-full  post ">
+
+            <header class="post-full-header">
+                <section class="post-full-meta">
+                    <time class="post-full-meta-date" datetime="31 August 2015">31 August 2015</time>
+                    
+                </section>
+                <h1 class="post-full-title">A Custom Query Language</h1>
+            </header>
+
+            
+            <figure class="post-full-image" style="background-image: url(/images/query.jpg)">
+            </figure>
+            
+
+            <section class="post-full-content">
+                <div class="kg-card-markdown">
+                    <p>If you recall, our <a href="http://blog.jonharrington.org/a-simple-cep-processor-in-elixir/">CEP processor</a> currently forces us to write elixir code to work on our windows of data, and our current implementation stores and operates on our data in the same function.
+<!--excerpt--></p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir">  <span class="k">def</span> <span class="n">init</span><span class="p">({</span><span class="n">events</span><span class="p">,</span> <span class="n">symbol</span><span class="p">})</span> <span class="k">do</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="no">Window</span><span class="o">.</span><span class="n">timed</span><span class="p">(</span><span class="m">60</span><span class="p">)</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="p">%{</span><span class="ss">symbol:</span> <span class="n">symbol</span><span class="p">,</span> <span class="ss">events:</span> <span class="n">events</span><span class="p">,</span> <span class="ss">window:</span> <span class="n">window</span><span class="p">}}</span>
+  <span class="k">end</span>
+  
+  <span class="k">def</span> <span class="n">handle_cast</span><span class="p">({</span><span class="ss">:tick</span><span class="p">,</span> <span class="p">{</span><span class="n">symbol</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">value</span><span class="p">}},</span> <span class="n">state</span><span class="p">)</span> <span class="k">do</span>
+     <span class="n">w</span> <span class="o">=</span> <span class="no">Window</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">window</span><span class="p">,</span> <span class="p">{</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">value</span><span class="p">})</span>
+     <span class="n">avg</span> <span class="o">=</span> <span class="no">Enum</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="p">)</span><span class="o">/</span><span class="no">Enum</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+     <span class="no">GenEvent</span><span class="o">.</span><span class="n">sync_notify</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">events</span><span class="p">,</span> <span class="p">{</span><span class="ss">:avg</span><span class="p">,</span> <span class="p">{</span><span class="n">symbol</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">avg</span><span class="p">}})</span>
+     <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="p">%{</span> <span class="n">state</span> <span class="o">|</span> <span class="ss">window:</span> <span class="n">w</span><span class="p">}}</span>
+   <span class="k">end</span></code></pre></figure>
+
+<p>In a typical CEP application, the storing of incoming data is invisible to the end user and the code operating on it. Also, most (all?) CEP libraries and frameworks tend to provide a SQL like query language. In another system our operation code would be written like</p>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="k">insert</span> <span class="k">into</span> <span class="n">AverageStream</span>
+<span class="k">select</span> <span class="n">symbol</span><span class="p">,</span> <span class="k">avg</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">as</span> <span class="n">average</span><span class="p">,</span> <span class="k">timestamp</span>
+<span class="k">group</span> <span class="k">by</span> <span class="n">symbol</span>
+<span class="k">from</span> <span class="n">TickStream</span><span class="o">#</span><span class="n">window</span><span class="p">.</span><span class="k">length</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span></code></pre></figure>
+
+<p>If we squint a little we can see that the above code looks a lot like our Elixir Worker module.</p>
+
+<p>CEP frameworks also tend to have the concept of streams of data, your code queries the stream and operates on the values returned. Streams are also usually defined using a SQL like define statement.</p>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="n">define</span> <span class="k">table</span> <span class="n">TickStream</span> <span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="k">timestamp</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+<span class="n">define</span> <span class="k">table</span> <span class="n">AverageStream</span> <span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="k">timestamp</span><span class="p">,</span> <span class="n">average</span><span class="p">)</span></code></pre></figure>
+
+<p>Again, with a bit of squinting these definiations like a lot like elixir structs, so lets see what it takes to convert SQL like statements into Elixir code so we can add the same functionality to our CEP application.</p>
+
+<h2 id="lexing-and-parsing">Lexing and Parsing</h2>
+
+<p><a href="https://en.wikipedia.org/wiki/Lex_(software)">Lex</a> and <a href="https://en.wikipedia.org/wiki/Yacc">Yacc</a> are two well known and well understood pieces of software used by many languages to lex and parse text. I am not going to dive deep into compiler theory in this post (the internet is full of resources), I merely hope show how to use the erlang versions of lex (<a href="http://erlang.org/doc/man/leex.html">leex</a>) and yac (<a href="http://erlang.org/doc/man/yecc.html">yecc</a>) with elixir.</p>
+
+<p>To turn a statement such as</p>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="n">define</span> <span class="k">table</span> <span class="n">TickStream</span> <span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="k">timestamp</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></code></pre></figure>
+
+<p>into an elixir struct</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="k">defmodule</span> <span class="no">TickStream</span> <span class="k">do</span>
+	<span class="n">defstruct</span> <span class="ss">symbol:</span> <span class="no">nil</span><span class="p">,</span> <span class="ss">timestamp:</span> <span class="no">nil</span><span class="p">,</span> <span class="ss">value:</span> <span class="no">nil</span>
+<span class="k">end</span>   </code></pre></figure>
+
+<p>we need to perform three steps, first, we need to tokenise it using leex, then we need to convert the tokens into an AST (abstract syntax tree) using yeec, and finally, we need to convert our AST to one that can be compiled by the elixir compiler.</p>
+
+<h3 id="leex">Leex</h3>
+<p>A lexer split our text into a series of tokens and associated metadata. To use leex, we need to create a s file that defines how we create tokens from text. A rule is simply:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>regex: erlang code
+</code></pre></div></div>
+
+<p><strong>Note:</strong> Leex and Yeec are erlang tools and expect code, atom names etc. to be written in erlang.</p>
+
+<p>To make it easier to read, we can split our rules file into a definitions section, where we define our regular expressions, and a rules section, where we create our token tuples. Our rules must use erlang syntax and they must return a tuple of</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{token, Value}
+</code></pre></div></div>
+
+<p>Ok, so lets create our rules file in lib/lexer.xrl</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Definitions.
+
+KEYWORD    = [a-zA-Z_]+
+WHITESPACE = [\s\t\n\r]
+
+Rules.
+
+define        : {token, {define, TokenLine, TokenChars}}.
+table         : {token, {table, TokenLine, TokenChars}}.
+{KEYWORD}     : {token, {keyword, TokenLine, TokenChars}}.
+\(            : {token, {''('', TokenLine}}.
+\)            : {token, {'')'', TokenLine}}.
+,             : skip_token.
+{WHITESPACE}+ : skip_token.
+
+Erlang code.
+</code></pre></div></div>
+
+<p>The <em>Erlang code</em> section can be empty but the header must be present. Now lets try it out in a iex console</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>iex(1)&gt; :leex.file(''lib/lexer.xrl'')
+{:ok, ''lib/lexer.erl''}
+iex(2)&gt; c("lib/lexer.erl")
+[:lexer]
+iex(3)&gt; {:ok, toks, _} = :lexer.string(''define table TickStream (symbol, timestamp, value)'')
+{:ok,
+ [{:define, 1, ''define''}, {:table, 1, ''table''}, {:keyword, 1, ''TickStream''},
+  {:"(", 1}, {:keyword, 1, ''symbol''}, {:",", 1}, {:keyword, 1, ''timestamp''},
+  {:",", 1}, {:keyword, 1, ''value''}, {:")", 1}], 1}
+</code></pre></div></div>
+
+<p>Great, we pass in a text string and get back a data structure. Now that we have our list of tokens, lets convert it into an AST.</p>
+
+<h3 id="yecc">Yecc</h3>
+<p>Our next step is to convert the tokens we received from leex into an AST structure that we can process.</p>
+
+<p>yecc also expects a rule file. A yecc rule is:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Left_hand_side -&gt; Right_hand_side : Associated_code.    
+</code></pre></div></div>
+
+<p>The Erlang docs state: “The left hand side is a non-terminal category. The right hand side is a sequence of one or more non-terminal or terminal symbols with spaces between.”</p>
+
+<p>I want to keep this code focused and hopefully the example will speak for itself, but basically a non-terminal is a category that is not full expanded, whereas a terminal is fully expanded (finished, “terminated”). In other words if you have a non-terminal you need to keep adding rules until you reach a terminal. Note the terminal names/tokens are those that are created by our lexer rules in the previous step.</p>
+
+<p>In our associated code we use $1, $2, $3 etc. to reference items matched by our rule, the first item being $1 etc. Often we will simply ignore certain matched items as you will see below, they provide guidance to the human writer and the parser but are of little use after parsing.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Nonterminals definition name fields field.
+
+Terminals define table keyword ''('' '')'' '',''.
+
+Rootsymbol definition.
+
+definition -&gt; define table name ''('' fields '')'': {struct, ''$3'', {fields, ''$5''}}. % We are interested in the table and field names
+
+
+name -&gt; keyword: {name, extract(''$1'')}.
+
+fields -&gt; field: [''$1''].
+fields -&gt; field '','' fields: [''$1''] ++ ''$3''.
+
+field -&gt; keyword: extract(''$1'').
+
+
+Erlang code.
+
+extract({_, _, Value}) -&gt; Value.
+</code></pre></div></div>
+
+<p>We declare a top level non-terminal, definition, as our entry point. We then say we expect a definition to have a defined format, define table <name> ..., when we see a group of tokens that matches that format, we can extract what we require. A lexer will lex any string of text that matches its rules, however, a parser will expect the text to have a certain *syntax*. It is the parser that will raise a syntax error if the format is wrong, not the lexer.</name></p>
+
+<p>Ok, lets try it out</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>iex(4)&gt; :yecc.file(''lib/parser.yrl'')
+{:ok, ''lib/parser.erl''}
+iex(5)&gt; c("lib/parser.erl")
+[:parser]
+iex(6)&gt; {:ok, ast} = :parser.parse(toks)
+{:ok,
+ {:struct, {:name, ''TickStream''}, {:fields, [''symbol'', ''timestamp'', ''value'']}}}
+</code></pre></div></div>
+
+<p>Now we have a datastructure that contains all we need to create an elixir struct.</p>
+
+<h2 id="elixir-ast">Elixir AST</h2>
+<p>Elixir has powerful metaprogramming support due to its use of macros. We can easily see the AST elixir is expecting by quoting our expected struct definition:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>iex(1)&gt; quote do
+...(1)&gt; defmodule TickStream do
+...(1)&gt;  defstruct symbol: nil, timestamp: nil, value: nil
+...(1)&gt;  end  
+...(1)&gt; end
+{:defmodule, [context: Elixir, import: Kernel],
+ [{:__aliases__, [alias: false], [:TickStream]},
+  [do: {:defstruct, [context: Elixir, import: Kernel],
+    [[symbol: nil, timestamp: nil, value: nil]]}]]}
+</code></pre></div></div>
+
+<p>We see what elixir expects is slightly more involved than what we currently produce, we now have two options. We can modify our parser rules to produce what elixir is expecting, or, we can use elixir code (functions) to modify our structure.</p>
+
+<p>In the long run the code approach gives us more flexibility so thats what I choose here (and elixir pattern matching makes it much easier once our transpilier/compilier gets more complex.)</p>
+
+<p>Create a file called transformer.ex and add a function to convert the AST structure to an elixir AST data structure.</p>
+
+<figure class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="k">defmodule</span> <span class="no">Transformer</span> <span class="k">do</span>
+
+  <span class="k">def</span> <span class="n">transform</span><span class="p">({</span><span class="ss">:struct</span><span class="p">,</span> <span class="p">{</span><span class="ss">:name</span><span class="p">,</span> <span class="n">name</span><span class="p">},</span> <span class="p">{</span><span class="ss">:fields</span><span class="p">,</span> <span class="n">fields</span><span class="p">}})</span> <span class="k">do</span>
+    <span class="n">stname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">|&gt;</span> <span class="no">List</span><span class="o">.</span><span class="n">to_atom</span>
+    <span class="n">stfields</span> <span class="o">=</span> <span class="n">fields</span> <span class="o">|&gt;</span> <span class="no">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">fn</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="no">List</span><span class="o">.</span><span class="n">to_atom</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="no">nil</span><span class="p">}</span> <span class="k">end</span><span class="p">)</span>
+
+    <span class="p">{</span><span class="ss">:defmodule</span><span class="p">,</span> <span class="p">[</span><span class="ss">context:</span> <span class="no">Elixir</span><span class="p">,</span> <span class="kn">import</span><span class="p">:</span> <span class="no">Kernel</span><span class="p">],</span>
+     <span class="p">[{</span><span class="ss">:__aliases__</span><span class="p">,</span> <span class="p">[</span><span class="ss">alias:</span> <span class="no">false</span><span class="p">],</span> <span class="p">[</span><span class="n">stname</span><span class="p">]},</span>
+      <span class="p">[</span><span class="k">do</span><span class="p">:</span> <span class="p">{</span><span class="ss">:defstruct</span><span class="p">,</span> <span class="p">[</span><span class="ss">context:</span> <span class="no">Elixir</span><span class="p">,</span> <span class="kn">import</span><span class="p">:</span> <span class="no">Kernel</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">stfields</span><span class="p">]}]]}</span>
+  <span class="k">end</span>
+
+<span class="k">end</span></code></pre></figure>
+
+<p>We can test it in a console</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>iex(18)&gt; c("lib/transformer.ex")
+[Transformer]
+iex(20)&gt; exast = Transformer.transform(ast)
+{:defmodule, [context: Elixir, import: Kernel],
+ [{:__aliases__, [alias: false], [:TickStream]},
+  [do: {:defstruct, [context: Elixir, import: Kernel],
+    [[symbol: nil, timestamp: nil, value: nil]]}]]}
+</code></pre></div></div>
+
+<p>And see our function has converted our AST to the AST expected by the elixir compiler. Finally, lets compile and run it</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>iex(22)&gt; Code.compile_quoted(exast)
+[{TickStream,
+  &lt;&lt;70, 79, 82, 49, 0, 0, 5, 0, 66, 69, 65, 77, 69, 120, 68, 99, 0, 0, 0, 99, 131, 104, 2, 100, 0, 14, 101, 108, 105, 120, 105, 114, 95, 100, 111, 99, 115, 95, 118, 49, 108, 0, 0, 0, 2, 104, 2, 100, 0, ...&gt;&gt;}]    
+iex(23)&gt; %TickStream{}
+%TickStream{symbol: nil, timestamp: nil, value: nil}
+iex(24)&gt; %TickStream{symbol: "AAPL", timestamp: 100, value: 124.56}
+%TickStream{symbol: "AAPL", timestamp: 100, value: 124.56}
+</code></pre></div></div>
+
+<p>As easy as that! We can now use the TickStream struct as if it had been written in pure elixir.</p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>In this post we have examined how to lex, parse and compile a custom language into elixir. The facts that erlang comes with leex and yeec as standard, and that elixir has powerful and easy to use code generation capabilities, means we have no excuse not to use these tools if a suitable use cases arises.</p>
+
+                </div>
+            </section>
+
+            <!-- Email subscribe form at the bottom of the page -->
+            
+
+            <footer class="post-full-footer">
+                <!-- Everything inside the #author tags pulls data from the author -->
+                <!-- #author-->
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <!-- /author  -->
+            </footer>
+
+            <!-- If you use Disqus comments, just uncomment this block.
+            The only thing you need to change is "test-apkdzgmqhj" - which
+            should be replaced with your own Disqus site-id. -->
+            
+                <section class="post-full-comments">
+                    <div id="disqus_thread"></div>
+                    <script>
+                        var disqus_config = function () {
+                            this.page.url = 'http://localhost:5657/custom-query-language/';
+                            this.page.identifier = '/custom-query-language';
+                            this.page.title = 'A Custom Query Language';
+                        };
+                        (function() {
+                            var d = document, s = d.createElement('script');
+                            s.src = 'https://magpietech.disqus.com/embed.js';
+                            s.setAttribute('data-timestamp', +new Date());
+                            (d.head || d.body).appendChild(s);
+                        })();
+                    </script>
+                </section>
+            
+
+        </article>
+
+    </div>
+
+
+<div class="comments">
+	<div id="disqus_thread"></div>
+	<script type="text/javascript">
+
+	    var disqus_shortname = 'true';
+
+	    (function() {
+	        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	    })();
+
+	</script>
+	<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+
+</main>
+
+<!-- Links to Previous/Next posts -->
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+            
+
+            <!-- If there's a next post, display it using the same markup included from - partials/post-card.hbs -->
+            
+                
+
+    <article class="post-card post-template">
+        
+            <a class="post-card-image-link" href="/elixir-and-jupyter/">
+                <div class="post-card-image" style="background-image: url(/images/elixir.jpg)"></div>
+            </a>
+        
+        <div class="post-card-content">
+            <a class="post-card-content-link" href="/elixir-and-jupyter/">
+                <header class="post-card-header">
+                    
+
+                    <h2 class="post-card-title">Elixir and Jupyter</h2>
+                </header>
+                <section class="post-card-excerpt">
+                    
+                        <p></p>
+                    
+                </section>
+            </a>
+            <footer class="post-card-meta">
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <span class="reading-time">
+                    
+                    
+                      1 min read
+                    
+                </span>
+            </footer>
+        </div>
+    </article>
+
+            
+
+            <!-- If there's a previous post, display it using the same markup included from - partials/post-card.hbs -->
+            
+                
+
+    <article class="post-card post-template">
+        
+            <a class="post-card-image-link" href="/elixir-and-czmq/">
+                <div class="post-card-image" style="background-image: url(/images/pair.jpg)"></div>
+            </a>
+        
+        <div class="post-card-content">
+            <a class="post-card-content-link" href="/elixir-and-czmq/">
+                <header class="post-card-header">
+                    
+
+                    <h2 class="post-card-title">Elixir and ZeroMQ</h2>
+                </header>
+                <section class="post-card-excerpt">
+                    
+                        <p></p>
+                    
+                </section>
+            </a>
+            <footer class="post-card-meta">
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <span class="reading-time">
+                    
+                    
+                      1 min read
+                    
+                </span>
+            </footer>
+        </div>
+    </article>
+
+            
+
+        </div>
+    </div>
+</aside>
+
+<!-- Floating header which appears on-scroll, included from includes/floating-header.hbs -->
+<div class="floating-header">
+    <div class="floating-header-logo">
+        <a href="http://localhost:5657/">
+            
+                <img src="/assets/images/favicon.png" alt="Jonathan Harrington icon" />
+            
+            <span>Jonathan Harrington</span>
+        </a>
+    </div>
+    <span class="floating-header-divider">&mdash;</span>
+    <div class="floating-header-title">A Custom Query Language</div>
+    <div class="floating-header-share">
+        <div class="floating-header-share-label">Share this <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M7.5 15.5V4a1.5 1.5 0 1 1 3 0v4.5h2a1 1 0 0 1 1 1h2a1 1 0 0 1 1 1H18a1.5 1.5 0 0 1 1.5 1.5v3.099c0 .929-.13 1.854-.385 2.748L17.5 23.5h-9c-1.5-2-5.417-8.673-5.417-8.673a1.2 1.2 0 0 1 1.76-1.605L7.5 15.5zm6-6v2m-3-3.5v3.5m6-1v2"/>
+</svg>
+</div>
+        <a class="floating-header-share-tw" href="https://twitter.com/share?text=A+Custom+Query+Language&amp;url=https://blog.jonharrington.org/custom-query-language/"
+            onclick="window.open(this.href, 'share-twitter', 'width=550,height=235');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
+
+        </a>
+        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=https://blog.jonharrington.org/custom-query-language/"
+            onclick="window.open(this.href, 'share-facebook','width=580,height=296');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"/></svg>
+
+        </a>
+    </div>
+    <progress class="progress" value="0">
+        <div class="progress-container">
+            <span class="progress-bar"></span>
+        </div>
+    </progress>
+</div>
+
+
+<!-- /post -->
+
+<!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs -->
+
+
+        <!-- Previous/next page links - displayed on every page -->
+        
+
+        <!-- The footer at the very bottom of the screen -->
+        <footer class="site-footer outer">
+            <div class="site-footer-content inner">
+                <section class="copyright"><a href="http://localhost:5657/">Jonathan Harrington</a> &copy; 2020</section>
+                <section class="poweredby">Proudly published with <a href="https://jekyllrb.com/">Jekyll</a> &
+                    <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a> using
+                    <a href="https://github.com/jekyller/jasper2" target="_blank" rel="noopener">Jasper2</a></section>
+                <nav class="site-footer-nav">
+                    <a href="/">Latest Posts</a>
+                    <a href="https://github.com/prio" target="_blank" rel="noopener">Github</a>
+                    <a href="https://www.linkedin.com/in/jnharrington" target="_blank" rel="noopener">Linkedin</a>
+                    <a href="https://twitter.com/jonathanharring" target="_blank" rel="noopener">Twitter</a>
+                </nav>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- The big email subscribe modal content -->
+    
+
+    <!-- highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.10.0/components/prism-abap.min.js"></script>
+    <script>$(document).ready(function() {
+      $('pre code').each(function(i, block) {
+        hljs.highlightBlock(block);
+      });
+    });</script>
+
+    <!-- jQuery + Fitvids, which makes all video embeds responsive -->
+    <script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" src="/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://demo.ghost.io/assets/js/jquery.fitvids.js?v=724281a32e"></script>
+
+
+    <!-- Paginator increased to "infinit" in _config.yml -->
+    <!-- if paginator.posts  -->
+    <!-- <script>
+        var maxPages = parseInt('');
+    </script>
+    <script src="/assets/js/infinitescroll.js"></script> -->
+    <!-- /endif -->
+
+    
+
+
+    <!-- Add Google Analytics  -->
+    <!-- Google Analytics Tracking code -->
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+
+ </script>
+
+
+    <!-- The #block helper will pull in data from the #contentFor other template files. In this case, there's some JavaScript which we only want to use in post.hbs, but it needs to be included down here, after jQuery has already loaded. -->
+    
+        <script>
+
+// NOTE: Scroll performance is poor in Safari
+// - this appears to be due to the events firing much more slowly in Safari.
+//   Dropping the scroll event and using only a raf loop results in smoother
+//   scrolling but continuous processing even when not scrolling
+$(document).ready(function () {
+    // Start fitVids
+    var $postContent = $(".post-full-content");
+    $postContent.fitVids();
+    // End fitVids
+
+    var progressBar = document.querySelector('progress');
+    var header = document.querySelector('.floating-header');
+    var title = document.querySelector('.post-full-title');
+
+    var lastScrollY = window.scrollY;
+    var lastWindowHeight = window.innerHeight;
+    var lastDocumentHeight = $(document).height();
+    var ticking = false;
+
+    function onScroll() {
+        lastScrollY = window.scrollY;
+        requestTick();
+    }
+
+    function onResize() {
+        lastWindowHeight = window.innerHeight;
+        lastDocumentHeight = $(document).height();
+        requestTick();
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(update);
+        }
+        ticking = true;
+    }
+
+    function update() {
+        var trigger = title.getBoundingClientRect().top + window.scrollY;
+        var triggerOffset = title.offsetHeight + 35;
+        var progressMax = lastDocumentHeight - lastWindowHeight;
+
+        // show/hide floating header
+        if (lastScrollY >= trigger + triggerOffset) {
+            header.classList.add('floating-active');
+        } else {
+            header.classList.remove('floating-active');
+        }
+
+        progressBar.setAttribute('max', progressMax);
+        progressBar.setAttribute('value', lastScrollY);
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('resize', onResize, false);
+
+    update();
+});
+</script>
+
+    
+
+    <!-- Ghost outputs important scripts and data with this tag - it should always be the very last thing before the closing body tag -->
+    <!-- ghost_foot -->
+
+</body>
+</html>
