@@ -1,7 +1,10 @@
 ---
 layout: post
 title: F# Excel Add-In
-image: /images/chart-close-up-data-desk.jpg
+cover: images/chart-close-up-data-desk.jpg
+navigation: True
+class: post-template
+subclass: 'post'
 ---
 
 This is a post is based on information found in various repos and wiki pages on Github but I felt it was worth putting it all together along with some screenshots of Visual Studio 2019 for someone starting out in the .NET ecosystem.

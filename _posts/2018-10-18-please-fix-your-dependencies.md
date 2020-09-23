@@ -1,7 +1,10 @@
 ---
 layout: post
 title: Please fix your dependencies
-image: /images/scream.jpeg
+cover: images/scream.jpeg
+navigation: True
+class: post-template
+subclass: 'post'
 ---
 
 Please use fixed versions for your application dependencies.

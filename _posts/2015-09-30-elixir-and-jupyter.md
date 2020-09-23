@@ -1,6 +1,10 @@
 ---
 layout: post
 title: Elixir and Jupyter
+navigation: True
+class: post-template
+subclass: 'post'
+cover: images/elixir.jpg
 ---
 
 When using Python I rely heavily on [Jupyter](https://jupyter.org/) (nee iPython) and now that they are pushing multi-language support I am excited to see what other language communities do with it. In this post I will look at setting it up with an Elixir kernel.

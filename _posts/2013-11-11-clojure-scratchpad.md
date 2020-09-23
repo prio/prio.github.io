@@ -1,6 +1,10 @@
 ---
 layout: post
 title: My Clojure Scratchpad
+navigation: True
+class: post-template
+subclass: 'post'
+cover: images/scratchpad.jpg
 ---
 
 When I want to do a quick calculation or perform a few one off commands that are beyond my bash knowledge I normally reach for Python. <!--excerpt--> My work flow is

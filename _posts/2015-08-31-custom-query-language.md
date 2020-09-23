@@ -1,6 +1,10 @@
 ---
 layout: post
 title: A Custom Query Language
+navigation: True
+class: post-template
+subclass: 'post'
+cover: images/query.jpg
 ---
 
 If you recall, our [CEP processor](http://blog.jonharrington.org/a-simple-cep-processor-in-elixir/) currently forces us to write elixir code to work on our windows of data, and our current implementation stores and operates on our data in the same function.

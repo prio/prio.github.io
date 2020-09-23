@@ -1,7 +1,10 @@
 ---
 layout: post
 title: Calling Rust from Excel
-image: /images/person-writing-on-notebook-669615.jpg
+cover: images/person-writing-on-notebook-669615.jpg
+navigation: True
+class: post-template
+subclass: 'post'
 ---
 
 This post is part of a series on interfacing Excel with various programming languages.

@@ -1,7 +1,10 @@
 ---
 layout: post
 title: F# Excel Add-In Part 2
-image: /images/black-samsung-tablet-computer-106344.jpg
+cover: images/black-samsung-tablet-computer-106344.jpg
+navigation: True
+class: post-template
+subclass: 'post'
 ---
 
 This post follows on from the [previous post](https://blog.jonharrington.org/fsharp_excel_addin/), extending the Add-In with a UI.

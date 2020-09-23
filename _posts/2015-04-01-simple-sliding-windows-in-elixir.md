@@ -1,7 +1,10 @@
 ---
 layout: post
 title: Simple Sliding Windows in Elixir
-image: /images/Sized.png
+cover: images/Sized.png
+navigation: True
+class: post-template
+subclass: 'post'
 ---
 
 As part of some research I have been doing I wanted a sliding window data structure and thought it would be interesting to see how to implement custom data structures in Elixir.

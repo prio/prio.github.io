@@ -1,6 +1,10 @@
 ---
 layout: post
 title: Clojurescript and Closure UI Tutorial
+navigation: True
+class: post-template
+subclass: 'post'
+cover: images/clojurescript.png
 ---
 
 I am researching the available Clojure options for web and front end development at the moment and plan to create a series of posts that document what I learn as I go. This post will be an introduction to using the Google Closure libraries with Clojurescript. It assumes some basic familiarity with Clojurescript.

@@ -1,7 +1,10 @@
 ---
 layout: post
 title: Free Speech
-image: /images/freespeech.jpg
+cover: images/freespeech.jpg
+navigation: True
+class: post-template
+subclass: 'post'
 ---
 
 I can't say I was upset to hear about Alex Jones recent removal from social media and podcast platforms. The man is a steaming pile of garbage and I have zero sympathy for him. However, after a discussion with friends and some conversations on twitter I started thinking about my own position on censorship and what I believe is acceptable speech.
