@@ -75,7 +75,7 @@ username: jekyller
 repo: jasper2
 branch: master
 relative_source: ../prio.gthub.io/
-destination: _site/
+destination: docs/
 production_url:  https://blog.jonharrington.org/
 source_url:  https://github.com/prio/prio.gthub.io/
 
