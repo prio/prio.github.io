@@ -1,4 +1,110 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-09-23T15:36:15+01:00</updated><id>/</id><title type="html">Jonathan Harrington</title><subtitle>Just my thoughts, right or wrong</subtitle><entry><title type="html">Calling Rust from Excel</title><link href="/calling-rust-from-excel/" rel="alternate" type="text/html" title="Calling Rust from Excel" /><published>2020-04-17T00:00:00+01:00</published><updated>2020-04-17T00:00:00+01:00</updated><id>/calling-rust-from-excel</id><content type="html" xml:base="/calling-rust-from-excel/">&lt;p&gt;This post is part of a series on interfacing Excel with various programming languages.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-09-24T11:21:38+01:00</updated><id>/</id><title type="html">Jonathan Harrington</title><subtitle>Just my thoughts, right or wrong</subtitle><entry><title type="html">Creating an Excel Add-in in D</title><link href="/d_excel_addin/" rel="alternate" type="text/html" title="Creating an Excel Add-in in D" /><published>2020-09-24T00:00:00+01:00</published><updated>2020-09-24T00:00:00+01:00</updated><id>/d_excel_addin</id><content type="html" xml:base="/d_excel_addin/">&lt;p&gt;Next in my series on Excel add-ins is integration with the &lt;a href=&quot;https://dlang.org/&quot;&gt;D&lt;/a&gt; programming language.&lt;/p&gt;
+
+&lt;h1 id=&quot;introduction&quot;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;“D is a general-purpose programming language with static typing, systems-level access, and C-like syntax. With the D Programming Language, write fast, read fast, and run fast” (D website)&lt;/p&gt;
+
+&lt;p&gt;D is often a language I have seen mentioned but its not one I am overly familiar with. I believe the first time I landed on the website it was not published under an open source licence, which at the time was a deal breaker for me. It has since become more open and in recent years has been merged into GCC. For this reason I felt it was worth another look.&lt;/p&gt;
+
+&lt;h1 id=&quot;excel-d&quot;&gt;Excel-D&lt;/h1&gt;
+
+&lt;p&gt;Rather than wrap the code in an Excel-DNA add-in like I did with the &lt;a href=&quot;https://blog.jonharrington.org/calling-rust-from-excel/&quot;&gt;Rust&lt;/a&gt; example, a D wrapper around the Excel SDK called &lt;a href=&quot;https://github.com/symmetryinvestments/excel-d&quot;&gt;Excel-D&lt;/a&gt; exists. A tool called &lt;a href=&quot;https://github.com/symmetryinvestments/autowrap&quot;&gt;autowrap&lt;/a&gt; also exists which can wrap D code for Python, Excel and C# so an Excel-DNA approach could also be taken. In this post I will use the fully native approach.&lt;/p&gt;
+
+&lt;h2 id=&quot;project&quot;&gt;Project&lt;/h2&gt;
+
+&lt;p&gt;The standard D build tool is called &lt;a href=&quot;https://github.com/dlang/dub&quot;&gt;dub&lt;/a&gt;. We can use it to create our project and build the xll.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ dub init exceld
+Package recipe format (sdl/json) [json]: sdl
+Name [exceld]:
+Description [A minimal D application.]:
+Author name []:
+License [proprietary]:
+Copyright string [Copyright ┬® 2020, ]:
+Add dependency (leave empty to skip) []: excel-d
+Adding dependency excel-d ~&amp;gt;0.5.8
+Add dependency (leave empty to skip) []:
+Successfully created an empty project in 'exceld'.
+Package successfully created in exceld
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Next delete source/app.d and create main.d and funcs.d in the source folder.&lt;/p&gt;
+
+&lt;p&gt;main.d&lt;/p&gt;
+&lt;div class=&quot;language-d highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xlld&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;mixin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wrapAll&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;!(&lt;/span&gt;&lt;span class=&quot;kp&quot;&gt;__MODULE__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;funcs&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;funcs.d&lt;/p&gt;
+&lt;div class=&quot;language-d highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xlld&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@Register&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ArgumentText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Array to add&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;HelpTopic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Adds all cells in an array&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;FunctionHelp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Adds all cells in an array&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;ArgumentHelp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;The array to add&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;double&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FuncAddEverything&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;double&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[][]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;nothrow&lt;/span&gt; &lt;span class=&quot;nd&quot;&gt;@nogc&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;algorithm&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fold&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;isNaN&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+	&lt;span class=&quot;kt&quot;&gt;double&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ret&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;foreach&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;ret&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fold&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;!((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isNaN&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.0&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)(&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;0.0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ret&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Edit the build file, dub.sdl, to contain the following:&lt;/p&gt;
+
+&lt;div class=&quot;language-d highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;exceld&quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;description&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;A minimal D application.&quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;authors&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;copyright&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Copyright © 2020, &quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;license&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;proprietary&quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;dependency&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;excel-d&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;~&amp;gt;0.5.7&quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;targetType&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;dynamicLibrary&quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;dflags&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;-dip25&quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;-dip1000&quot;&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;configuration&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;xll&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;preBuildCommands&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;dub run -c def --nodeps -q -- exceld.def&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;sourceFiles&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;exceld.def&quot;&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;must&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;have&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;appropriate&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bit&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Excel&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SDK&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xlcall32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lib&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;path&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unfortunately&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;they&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;re&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;both&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;called&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xlcall32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lib&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;libs&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;xlcall32&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;postBuildCommands&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;copy /y exceld.dll exceld.xll&quot;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;configuration&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;justxll&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;sourceFiles&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;exceld.def&quot;&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;must&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;have&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;appropriate&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bit&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Excel&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SDK&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xlcall32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lib&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;path&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unfortunately&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;they&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;re&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;both&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;called&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xlcall32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lib&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;libs&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;xlcall32&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;postBuildCommands&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;copy /y exceld.dll exceld.xll&quot;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+
+&lt;span class=&quot;c1&quot;&gt;// This builds a binary that writes out the necessary .def file
+// to export the functions
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;configuration&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;def&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;targetType&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;executable&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;targetName&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;write_def&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;versions&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;exceldDef&quot;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Finally, copy the desired XLCALL32.LIB file from your Excel SDK install (can be downloaded from &lt;a href=&quot;https://www.microsoft.com/en-us/download/details.aspx?id=35567&quot;&gt;Microsoft&lt;/a&gt;) and run the build command:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ dub build --arch=x86_mscoff # For 32 bit
+$ dub build --arch=x86_64 # For 64 bit
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This should create an “exceld.xll” file in the top level directory. If we open the add-in in excel (explorer.exe exceld.xll can be used on the command line) we can use the function in a spreadsheet.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/excel_d_udf.png&quot; alt=&quot;Excel screenshot&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;Considering I had never written any D before I was able to get a simple UDF up and running without too much trouble. Excel-d appears to be a very good option if you wish to create custom UDFs, however at the moment it has no support for UI extensions. Also, beginner level documentation is lacking so the best way to find out more is by reading the code in the &lt;a href=&quot;https://github.com/symmetryinvestments/excel-d&quot;&gt;excel-d repo&lt;/a&gt;.&lt;/p&gt;</content><author><name></name></author><summary type="html">Next in my series on Excel add-ins is integration with the D programming language.</summary></entry><entry><title type="html">Calling Rust from Excel</title><link href="/calling-rust-from-excel/" rel="alternate" type="text/html" title="Calling Rust from Excel" /><published>2020-04-17T00:00:00+01:00</published><updated>2020-04-17T00:00:00+01:00</updated><id>/calling-rust-from-excel</id><content type="html" xml:base="/calling-rust-from-excel/">&lt;p&gt;This post is part of a series on interfacing Excel with various programming languages.
 &lt;!--excerpt--&gt;&lt;/p&gt;
 
 &lt;h1 id=&quot;excel&quot;&gt;Excel&lt;/h1&gt;
@@ -968,45 +1074,4 @@ table.gridtable td {
 
 &lt;p&gt;The Amiga community is still very active and vibrant, over 30 years on from the release of the first Amiga 1000. The continued enthusiasm this Computer generates continues to surprise me. And community led developments such as MiST and AROS, and commercial led projects like Next Gen Hardware and Apollo accelerators hopefully mean the Amiga will continue to be an interesting platform far into the future.&lt;/p&gt;
 
-&lt;p&gt;&lt;em&gt;Images in this post under CC license, thanks to Bill Bertram, Paolo Besser&lt;/em&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">The Amiga 500+ wasn’t my first computer when I was a child (the ZX Spectrum has that honor), but it was the one I received at the age when I wanted to do more than just play games and for that reason it stands out in my memory as being something a bit special. With the demise of Commodore and the onset of my teenage years, I drifted away from computers for a while only occasionally playing a Playstation at a friends houses. It wasn’‘t until I started University that I got interested and excited by computers again. That period of my life was Linux, the free software movement and learning to code. When I began working, and had some cash I moved to Macs and I stopped spending my evenings compiling kernels. It is only in the past year or so I have started to take a look back at the 8-bit and 16-bit systems of my youth and appreciate them anew.</summary></entry><entry><title type="html">Elixir and Jupyter</title><link href="/elixir-and-jupyter/" rel="alternate" type="text/html" title="Elixir and Jupyter" /><published>2015-09-30T00:00:00+01:00</published><updated>2015-09-30T00:00:00+01:00</updated><id>/elixir-and-jupyter</id><content type="html" xml:base="/elixir-and-jupyter/">&lt;p&gt;When using Python I rely heavily on &lt;a href=&quot;https://jupyter.org/&quot;&gt;Jupyter&lt;/a&gt; (nee iPython) and now that they are pushing multi-language support I am excited to see what other language communities do with it. In this post I will look at setting it up with an Elixir kernel.
-&lt;!--excerpt--&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;setup&quot;&gt;Setup&lt;/h2&gt;
-
-&lt;p&gt;First install Jupyer using conda or pip. I recommend using the &lt;a href=&quot;http://continuum.io/downloads&quot;&gt;Anaconda&lt;/a&gt; distribution and the conda package manager if possible. If using anaconda, a simple&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ conda install jupyter
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;should be enough to get you started.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; The jupyter binary and its associated commands (jupyter-console, jupyter-notebook etc.) must be on your path otherwise you will get a message such as &lt;em&gt;jupyter: ‘‘notebook’’ is not a Jupyter command&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;Next, we need to install and configure the &lt;em&gt;IElixir&lt;/em&gt; kernel.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ git clone https://github.com/pprzetacznik/IElixir.git
-$ cd IElixir
-$ mix deps.get
-$ MIX_ENV=prod mix compile
-$ sh install_script.sh
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; IElixir states it needs 1.1.0-dev but I am running it with 1.0.5 and it seems to work fine. (Just edit the mix.exs file if you need to downgrade.)&lt;/p&gt;
-
-&lt;h2 id=&quot;create-a-notebook&quot;&gt;Create a notebook&lt;/h2&gt;
-
-&lt;p&gt;Jupyter provides a number of different interfaces but by far my favorite is the &lt;em&gt;notebook&lt;/em&gt;, a HTML interface similar to the Mathematica interface. To create a notebook with the IElixir kernel, run&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ jupyter notebook
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Your browser should open the interface (if it doesn’‘t point it at &lt;a href=&quot;http://localhost:8888&quot;&gt;http://localhost:8888&lt;/a&gt;). When you select the new menu item, ielxir should be an option&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/images/Screen-Shot-2015-09-08-at-17-01-00.png&quot;&gt;Jupyter Interface&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;You can now enter any code that you would enter into an iex session, and save that code as a document for reference or editing later.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;/images/Screen-Shot-2015-09-08-at-17-03-38-1.png&quot;&gt;Jupyter IElixir Kernel&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
-
-&lt;p&gt;It is very easy to set up Jupyter to use Elixir thanks to the great work by &lt;a href=&quot;https://twitter.com/pprzetacznik&quot;&gt;Piotr Przetacznik&lt;/a&gt;. Check it out and see what it can do, its definitely a tool worth having in your toolbox.&lt;/p&gt;</content><author><name></name></author><summary type="html">When using Python I rely heavily on Jupyter (nee iPython) and now that they are pushing multi-language support I am excited to see what other language communities do with it. In this post I will look at setting it up with an Elixir kernel.</summary></entry></feed>
+&lt;p&gt;&lt;em&gt;Images in this post under CC license, thanks to Bill Bertram, Paolo Besser&lt;/em&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">The Amiga 500+ wasn’t my first computer when I was a child (the ZX Spectrum has that honor), but it was the one I received at the age when I wanted to do more than just play games and for that reason it stands out in my memory as being something a bit special. With the demise of Commodore and the onset of my teenage years, I drifted away from computers for a while only occasionally playing a Playstation at a friends houses. It wasn’‘t until I started University that I got interested and excited by computers again. That period of my life was Linux, the free software movement and learning to code. When I began working, and had some cash I moved to Macs and I stopped spending my evenings compiling kernels. It is only in the past year or so I have started to take a look back at the 8-bit and 16-bit systems of my youth and appreciate them anew.</summary></entry></feed>

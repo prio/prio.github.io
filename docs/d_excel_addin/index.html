@@ -11,7 +11,7 @@
 
 
 
-    <title>Calling Rust from Excel</title>
+    <title>Creating an Excel Add-in in D</title>
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Styles'n'Scripts -->
@@ -36,22 +36,22 @@
     <!-- This tag outputs SEO meta+structured data and other important settings -->
     <meta name="description" content="Just my thoughts, right or wrong" />
     <link rel="shortcut icon" href="/assets/images/favicon.png" type="image/png" />
-    <link rel="canonical" href="/calling-rust-from-excel/" />
+    <link rel="canonical" href="/d_excel_addin/" />
     <meta name="referrer" content="no-referrer-when-downgrade" />
 
      <!--title below is coming from _includes/dynamic_title-->
     <meta property="og:site_name" content="Jonathan Harrington" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Calling Rust from Excel" />
+    <meta property="og:title" content="Creating an Excel Add-in in D" />
     <meta property="og:description" content="Just my thoughts, right or wrong" />
-    <meta property="og:url" content="/calling-rust-from-excel/" />
-    <meta property="og:image" content="/images/person-writing-on-notebook-669615.jpg" />
+    <meta property="og:url" content="/d_excel_addin/" />
+    <meta property="og:image" content="/images/ged048.jpg" />
     <meta property="article:publisher" content="https://www.facebook.com/" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Calling Rust from Excel" />
+    <meta name="twitter:title" content="Creating an Excel Add-in in D" />
     <meta name="twitter:description" content="Just my thoughts, right or wrong" />
     <meta name="twitter:url" content="/" />
-    <meta name="twitter:image" content="/images/person-writing-on-notebook-669615.jpg" />
+    <meta name="twitter:image" content="/images/ged048.jpg" />
     <meta name="twitter:label1" content="Written by" />
     <meta name="twitter:data1" content="Jonathan Harrington" />
     <meta name="twitter:site" content="@jonathanharring" />
@@ -68,16 +68,16 @@
         "name": "Jonathan Harrington",
         "logo": "/"
     },
-    "url": "/calling-rust-from-excel/",
+    "url": "/d_excel_addin/",
     "image": {
         "@type": "ImageObject",
-        "url": "/images/person-writing-on-notebook-669615.jpg",
+        "url": "/images/ged048.jpg",
         "width": 2000,
         "height": 666
     },
     "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "/calling-rust-from-excel/"
+        "@id": "/d_excel_addin/"
     },
     "description": "Just my thoughts, right or wrong"
 }
@@ -92,7 +92,7 @@
     </script> -->
 
     <meta name="generator" content="Jekyll 3.6.2" />
-    <link rel="alternate" type="application/rss+xml" title="Calling Rust from Excel" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Creating an Excel Add-in in D" href="/feed.xml" />
 
 
 </head>
@@ -152,143 +152,126 @@ into the {body} of the default.hbs template -->
 
             <header class="post-full-header">
                 <section class="post-full-meta">
-                    <time class="post-full-meta-date" datetime="17 April 2020">17 April 2020</time>
+                    <time class="post-full-meta-date" datetime="24 September 2020">24 September 2020</time>
                     
                 </section>
-                <h1 class="post-full-title">Calling Rust from Excel</h1>
+                <h1 class="post-full-title">Creating an Excel Add-in in D</h1>
             </header>
 
             
-            <figure class="post-full-image" style="background-image: url(/images/person-writing-on-notebook-669615.jpg)">
+            <figure class="post-full-image" style="background-image: url(/images/ged048.jpg)">
             </figure>
             
 
             <section class="post-full-content">
                 <div class="kg-card-markdown">
-                    <p>This post is part of a series on interfacing Excel with various programming languages.
-<!--excerpt--></p>
+                    <p>Next in my series on Excel add-ins is integration with the <a href="https://dlang.org/">D</a> programming language.</p>
 
-<h1 id="excel">Excel</h1>
+<h1 id="introduction">Introduction</h1>
 
-<p>Excel is a tool that appears to be as loved as it is hated. Personally, I think its a fantastic tool, however its main benefits (easy to pick up and understand) also mean it is often used for tasks when it is no longer suitable, I have heard many a horror story of files taking minutes to load and requiring hours of pain staking checks just to make simple change due to their complexity.</p>
+<p>“D is a general-purpose programming language with static typing, systems-level access, and C-like syntax. With the D Programming Language, write fast, read fast, and run fast” (D website)</p>
 
-<p>Whatever your opinion of Excel, it is a tool many people are familiar with and can be used as a useful UI for certain types of applications. In this post I will demonstrate how to call Rust code from Excel via C#.</p>
+<p>D is often a language I have seen mentioned but its not one I am overly familiar with. I believe the first time I landed on the website it was not published under an open source licence, which at the time was a deal breaker for me. It has since become more open and in recent years has been merged into GCC. For this reason I felt it was worth another look.</p>
 
-<h1 id="rust">Rust</h1>
+<h1 id="excel-d">Excel-D</h1>
 
-<p>I am going to assume you have Rust installed and know how to use Cargo to create and build projects. If not please follow the instructions on the <a href="https://rustup.rs/">RustUp website</a> to install Rust.</p>
+<p>Rather than wrap the code in an Excel-DNA add-in like I did with the <a href="https://blog.jonharrington.org/calling-rust-from-excel/">Rust</a> example, a D wrapper around the Excel SDK called <a href="https://github.com/symmetryinvestments/excel-d">Excel-D</a> exists. A tool called <a href="https://github.com/symmetryinvestments/autowrap">autowrap</a> also exists which can wrap D code for Python, Excel and C# so an Excel-DNA approach could also be taken. In this post I will use the fully native approach.</p>
 
-<p>I have also covered calling Rust from other languages (Python, R) <a href="https://blog.jonharrington.org/rust-and-swig/">here</a> and if you are new to Rust please read that also.</p>
+<h2 id="project">Project</h2>
 
-<h1 id="excel-dna">Excel-DNA</h1>
+<p>The standard D build tool is called <a href="https://github.com/dlang/dub">dub</a>. We can use it to create our project and build the xll.</p>
 
-<p><a href="https://excel-dna.net/">Excel-DNA</a> is a .Net library that provides a high level API for interacting with Excel. Excel-DNA can be used to create both UDFs (functions you can call from a formula) and custom ribbon interfaces.</p>
-
-<p>For this project we will write the algorithm in Rust, and call it from Excel via C# and the Excel-DNA API. I have two previous posts showing how to used Excel-DNA with F#, <a href="https://blog.jonharrington.org/fsharp_excel_addin/">Part 1</a> and <a href="https://blog.jonharrington.org/fsharp_excel_addin-pt2/">Part 2</a>. Reading those will help you get familiar with Excel-DNA.</p>
-
-<h2 id="set-up-and-simple-udf">Set up and Simple UDF</h2>
-
-<p><img src="/images/excel_rust/create_new.jpg" alt="Create New Project" /></p>
-
-<p>In Visual Studio create a new <strong>Class Library (.NET Framework)</strong> and call it RustExcel.</p>
-
-<p><img src="/images/excel_rust/install_pkg.jpg" alt="Install ExcelDna.Addin Package" /></p>
-
-<p>Next, use the NuGet Package manager to install the <strong>Excel-DNA</strong> package.</p>
-
-<p>Finally, rename the Class1.cs file to something more sensible such as Functions.cs and add the following</p>
-
-<pre><code class="language-C#">using ExcelDna.Integration;
-
-
-public static class Functions
-{
-    [ExcelFunction(Description = "Return the sum of two numbers")]
-    public static double RustSum(double a, double b)
-    {
-        return a + b;
-    }
-}
-</code></pre>
-
-<p>Set up the projects debugging settings as described <a href="https://blog.jonharrington.org/fsharp_excel_addin/">previously</a> and hit F5. Excel should open and you should be able to use the function you have just defined.</p>
-
-<h1 id="create-rust-project">Create Rust Project</h1>
-
-<p>As you will often have to deal with older 32 bit versions of Excel, we will build our library as 32 bit. Add the following target using rustup:</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rustup target add i586-pc-windows-msvc
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ dub init exceld
+Package recipe format (sdl/json) [json]: sdl
+Name [exceld]:
+Description [A minimal D application.]:
+Author name []:
+License [proprietary]:
+Copyright string [Copyright ┬® 2020, ]:
+Add dependency (leave empty to skip) []: excel-d
+Adding dependency excel-d ~&gt;0.5.8
+Add dependency (leave empty to skip) []:
+Successfully created an empty project in 'exceld'.
+Package successfully created in exceld
 </code></pre></div></div>
 
-<p>Now create a new Rust library project</p>
+<p>Next delete source/app.d and create main.d and funcs.d in the source folder.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cargo new rustlib --lib
+<p>main.d</p>
+<div class="language-d highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="n">xlld</span><span class="p">;</span>
+<span class="k">mixin</span><span class="p">(</span><span class="n">wrapAll</span><span class="p">!(</span><span class="kp">__MODULE__</span><span class="p">,</span> <span class="s">"funcs"</span><span class="p">));</span>
 </code></pre></div></div>
 
-<p>And modify the build file to create a dynamic library.</p>
+<p>funcs.d</p>
+<div class="language-d highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="n">xlld</span><span class="p">;</span>
 
-<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
-<span class="py">name</span> <span class="p">=</span> <span class="s">"rustlib"</span>
-<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
-<span class="py">authors</span> <span class="p">=</span> <span class="p">[</span><span class="s">"Jonathan Harrington &lt;---&gt;"</span><span class="p">]</span>
-<span class="py">edition</span> <span class="p">=</span> <span class="s">"2018"</span>
+<span class="nd">@Register</span><span class="p">(</span><span class="n">ArgumentText</span><span class="p">(</span><span class="s">"Array to add"</span><span class="p">),</span>
+		<span class="n">HelpTopic</span><span class="p">(</span><span class="s">"Adds all cells in an array"</span><span class="p">),</span>
+		<span class="n">FunctionHelp</span><span class="p">(</span><span class="s">"Adds all cells in an array"</span><span class="p">),</span>
+		<span class="n">ArgumentHelp</span><span class="p">([</span><span class="s">"The array to add"</span><span class="p">]))</span>
+<span class="kt">double</span> <span class="n">FuncAddEverything</span><span class="p">(</span><span class="kt">double</span><span class="p">[][]</span> <span class="n">args</span><span class="p">)</span> <span class="k">nothrow</span> <span class="nd">@nogc</span> <span class="p">{</span>
+	<span class="k">import</span> <span class="n">std</span><span class="p">.</span><span class="n">algorithm</span><span class="p">:</span> <span class="n">fold</span><span class="p">;</span>
+	<span class="k">import</span> <span class="n">std</span><span class="p">.</span><span class="n">math</span><span class="p">:</span> <span class="n">isNaN</span><span class="p">;</span>
 
-<span class="nn">[lib]</span>
-<span class="py">name</span><span class="p">=</span><span class="s">"rustlib"</span>
-<span class="py">crate-type</span> <span class="p">=</span> <span class="nn">["dylib"]</span>
+	<span class="kt">double</span> <span class="n">ret</span> <span class="p">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">foreach</span><span class="p">(</span><span class="n">row</span><span class="p">;</span> <span class="n">args</span><span class="p">)</span>
+		<span class="n">ret</span> <span class="p">+=</span> <span class="n">row</span><span class="p">.</span><span class="n">fold</span><span class="p">!((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">b</span><span class="p">.</span><span class="n">isNaN</span> <span class="p">?</span> <span class="mf">0.0</span> <span class="p">:</span> <span class="n">a</span> <span class="p">+</span> <span class="n">b</span><span class="p">)(</span><span class="mf">0.0</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>Edit the build file, dub.sdl, to contain the following:</p>
 
-<span class="nn">[dependencies]</span>
+<div class="language-d highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">name</span> <span class="s">"exceld"</span>
+<span class="n">description</span> <span class="s">"A minimal D application."</span>
+<span class="n">authors</span> <span class="s">""</span>
+<span class="n">copyright</span> <span class="s">"Copyright © 2020, "</span>
+<span class="n">license</span> <span class="s">"proprietary"</span>
+<span class="n">dependency</span> <span class="s">"excel-d"</span> <span class="k">version</span><span class="p">=</span><span class="s">"~&gt;0.5.7"</span>
+<span class="n">targetType</span> <span class="s">"dynamicLibrary"</span>
+<span class="n">dflags</span> <span class="s">"-dip25"</span> <span class="s">"-dip1000"</span>
+
+<span class="n">configuration</span> <span class="s">"xll"</span> <span class="p">{</span>
+    <span class="n">preBuildCommands</span> <span class="s">"dub run -c def --nodeps -q -- exceld.def"</span>
+    <span class="n">sourceFiles</span> <span class="s">"exceld.def"</span>
+    <span class="err">#</span> <span class="n">must</span> <span class="n">have</span> <span class="n">the</span> <span class="n">appropriate</span> <span class="mi">32</span><span class="p">/</span><span class="mi">64</span> <span class="n">bit</span> <span class="n">Excel</span> <span class="n">SDK</span> <span class="n">xlcall32</span><span class="p">.</span><span class="n">lib</span> <span class="k">in</span> <span class="n">the</span> <span class="n">path</span> <span class="n">of</span> <span class="n">the</span> <span class="n">app</span>
+    <span class="err">#</span> <span class="n">unfortunately</span> <span class="n">they</span><span class="err">'</span><span class="n">re</span> <span class="n">both</span> <span class="n">called</span> <span class="n">xlcall32</span><span class="p">.</span><span class="n">lib</span>
+
+    <span class="n">libs</span> <span class="s">"xlcall32"</span>
+    <span class="n">postBuildCommands</span> <span class="s">"copy /y exceld.dll exceld.xll"</span>
+<span class="p">}</span>
+
+<span class="n">configuration</span> <span class="s">"justxll"</span> <span class="p">{</span>
+    <span class="n">sourceFiles</span> <span class="s">"exceld.def"</span>
+    <span class="err">#</span> <span class="n">must</span> <span class="n">have</span> <span class="n">the</span> <span class="n">appropriate</span> <span class="mi">32</span><span class="p">/</span><span class="mi">64</span> <span class="n">bit</span> <span class="n">Excel</span> <span class="n">SDK</span> <span class="n">xlcall32</span><span class="p">.</span><span class="n">lib</span> <span class="k">in</span> <span class="n">the</span> <span class="n">path</span> <span class="n">of</span> <span class="n">the</span> <span class="n">app</span>
+    <span class="err">#</span> <span class="n">unfortunately</span> <span class="n">they</span><span class="err">'</span><span class="n">re</span> <span class="n">both</span> <span class="n">called</span> <span class="n">xlcall32</span><span class="p">.</span><span class="n">lib</span>
+
+    <span class="n">libs</span> <span class="s">"xlcall32"</span>
+    <span class="n">postBuildCommands</span> <span class="s">"copy /y exceld.dll exceld.xll"</span>
+<span class="p">}</span>
+
+
+<span class="c1">// This builds a binary that writes out the necessary .def file
+// to export the functions
+</span><span class="n">configuration</span> <span class="s">"def"</span> <span class="p">{</span>
+    <span class="n">targetType</span> <span class="s">"executable"</span>
+    <span class="n">targetName</span> <span class="s">"write_def"</span>
+    <span class="n">versions</span> <span class="s">"exceldDef"</span>
+<span class="p">}</span>
 </code></pre></div></div>
 
-<p>Next, create a cargo config file in <code class="highlighter-rouge">.cargo\config</code> and add the following:</p>
+<p>Finally, copy the desired XLCALL32.LIB file from your Excel SDK install (can be downloaded from <a href="https://www.microsoft.com/en-us/download/details.aspx?id=35567">Microsoft</a>) and run the build command:</p>
 
-<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[build]</span>
-<span class="py">target</span> <span class="p">=</span> <span class="s">"i586-pc-windows-msvc"</span>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ dub build --arch=x86_mscoff # For 32 bit
+$ dub build --arch=x86_64 # For 64 bit
 </code></pre></div></div>
 
-<p>Finally, open lib.rs and add the following:</p>
+<p>This should create an “exceld.xll” file in the top level directory. If we open the add-in in excel (explorer.exe exceld.xll can be used on the command line) we can use the function in a spreadsheet.</p>
 
-<pre><code class="language-Rust">#[no_mangle]
-pub extern fn add_numbers(number1: f64, number2: f64) -&gt; f64 {
-    number1 + number2
-}
-</code></pre>
-
-<p>Now if you run <code class="highlighter-rouge">cargo build</code> you should now have a 32 bit <em>rustlib.dll</em> in your output folder (target\i586-pc-windows-msvc\debug).</p>
-
-<p><strong>Note</strong>: If the build fails make sure you have installed the Microsoft C/C++ toolchain as part of your Visual Studio install.</p>
-
-<h1 id="calling-rust-from-excel">Calling Rust from Excel</h1>
-
-<p>Now back in our C# project we need to add the dll to our project. Right click on the project and select Add -&gt; Existing Item and browse to the rustlib.dll in target\i586-pc-windows-msvc\debug.</p>
-
-<p><img src="/images/excel_rust/rustlib_props.png" alt="" /></p>
-
-<p>Then modify the file properties to ensure it is copied to the output directory. Finally, change the code in Functions.cs to the following:</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>using ExcelDna.Integration;
-using System;
-using System.Runtime.InteropServices;
-
-
-public static class Functions
-{
-    [DllImport("rustlib.dll", CallingConvention = CallingConvention.Cdecl)]
-    private static extern Double add_numbers(Double number1, Double number2);
-
-    [ExcelFunction(Description = "Return the sum of two numbers")]
-    public static double RustSum(double a, double b)
-    {
-        return add_numbers(a, b);
-    }
-}
-</code></pre></div></div>
-
-<p>Here we use the .NET Pinvoke functionality to declare the rust functions as external and then we simply call it from our C# wrapper. Now when you hit F5 and load Excel you can call “RustSum” as a UDF.</p>
+<p><img src="/images/excel_d_udf.png" alt="Excel screenshot" /></p>
 
 <h1 id="conclusion">Conclusion</h1>
 
-<p>Excel-DNA makes it very easy to create Excel Add-ins and Rusts (and C#s) excellent FFI support allows for easy interop with C#. Shout out to <a href="https://dev.to/living_syn/calling-rust-from-c-6hk">dev.to</a> and <a href="http://jakegoulding.com/rust-ffi-omnibus/">jakegoulding.com</a> for creating some great easy to follow content on this. You should go read their sites for more info.</p>
+<p>Considering I had never written any D before I was able to get a simple UDF up and running without too much trouble. Excel-d appears to be a very good option if you wish to create custom UDFs, however at the moment it has no support for UI extensions. Also, beginner level documentation is lacking so the best way to find out more is by reading the code in the <a href="https://github.com/symmetryinvestments/excel-d">excel-d repo</a>.</p>
 
 
                 </div>
@@ -326,9 +309,9 @@ public static class Functions
                     <div id="disqus_thread"></div>
                     <script>
                         var disqus_config = function () {
-                            this.page.url = '/calling-rust-from-excel/';
-                            this.page.identifier = '/calling-rust-from-excel';
-                            this.page.title = 'Calling Rust from Excel';
+                            this.page.url = '/d_excel_addin/';
+                            this.page.identifier = '/d_excel_addin';
+                            this.page.title = 'Creating an Excel Add-in in D';
                         };
                         (function() {
                             var d = document, s = d.createElement('script');
@@ -372,54 +355,6 @@ public static class Functions
 
             <!-- If there's a next post, display it using the same markup included from - partials/post-card.hbs -->
             
-                
-
-    <article class="post-card post-template">
-        
-            <a class="post-card-image-link" href="/d_excel_addin/">
-                <div class="post-card-image" style="background-image: url(/images/ged048.jpg)"></div>
-            </a>
-        
-        <div class="post-card-content">
-            <a class="post-card-content-link" href="/d_excel_addin/">
-                <header class="post-card-header">
-                    
-
-                    <h2 class="post-card-title">Creating an Excel Add-in in D</h2>
-                </header>
-                <section class="post-card-excerpt">
-                    
-                        <p></p>
-                    
-                </section>
-            </a>
-            <footer class="post-card-meta">
-                
-                    
-                
-                    
-                
-                    
-                
-                    
-                
-                    
-                
-                    
-                
-                    
-                
-                <span class="reading-time">
-                    
-                    
-                      1 min read
-                    
-                </span>
-            </footer>
-        </div>
-    </article>
-
-            
 
             <!-- If there's a previous post, display it using the same markup included from - partials/post-card.hbs -->
             
@@ -427,16 +362,16 @@ public static class Functions
 
     <article class="post-card post-template">
         
-            <a class="post-card-image-link" href="/fsharp_excel_addin_pt2/">
-                <div class="post-card-image" style="background-image: url(/images/black-samsung-tablet-computer-106344.jpg)"></div>
+            <a class="post-card-image-link" href="/calling-rust-from-excel/">
+                <div class="post-card-image" style="background-image: url(/images/person-writing-on-notebook-669615.jpg)"></div>
             </a>
         
         <div class="post-card-content">
-            <a class="post-card-content-link" href="/fsharp_excel_addin_pt2/">
+            <a class="post-card-content-link" href="/calling-rust-from-excel/">
                 <header class="post-card-header">
                     
 
-                    <h2 class="post-card-title">F# Excel Add-In Part 2</h2>
+                    <h2 class="post-card-title">Calling Rust from Excel</h2>
                 </header>
                 <section class="post-card-excerpt">
                     
@@ -487,18 +422,18 @@ public static class Functions
         </a>
     </div>
     <span class="floating-header-divider">&mdash;</span>
-    <div class="floating-header-title">Calling Rust from Excel</div>
+    <div class="floating-header-title">Creating an Excel Add-in in D</div>
     <div class="floating-header-share">
         <div class="floating-header-share-label">Share this <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <path d="M7.5 15.5V4a1.5 1.5 0 1 1 3 0v4.5h2a1 1 0 0 1 1 1h2a1 1 0 0 1 1 1H18a1.5 1.5 0 0 1 1.5 1.5v3.099c0 .929-.13 1.854-.385 2.748L17.5 23.5h-9c-1.5-2-5.417-8.673-5.417-8.673a1.2 1.2 0 0 1 1.76-1.605L7.5 15.5zm6-6v2m-3-3.5v3.5m6-1v2"/>
 </svg>
 </div>
-        <a class="floating-header-share-tw" href="https://twitter.com/share?text=Calling+Rust+from+Excel&amp;url=https://blog.jonharrington.org/calling-rust-from-excel/"
+        <a class="floating-header-share-tw" href="https://twitter.com/share?text=Creating+an+Excel+Add-in+in+D&amp;url=https://blog.jonharrington.org/d_excel_addin/"
             onclick="window.open(this.href, 'share-twitter', 'width=550,height=235');return false;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
 
         </a>
-        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=https://blog.jonharrington.org/calling-rust-from-excel/"
+        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=https://blog.jonharrington.org/d_excel_addin/"
             onclick="window.open(this.href, 'share-facebook','width=580,height=296');return false;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"/></svg>
 
