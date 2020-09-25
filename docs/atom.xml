@@ -8,6 +8,21 @@
     
       
       <item>
+        <title>This week in tabs</title>
+        
+          <description>&lt;p&gt;Some interesting data, maths and programming related content I stumbled across recently.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 25 Sep 2020 00:00:00 +0100</pubDate>
+        <link>
+        /this-week-in-tabs-i/</link>
+        <guid isPermaLink="true">/this-week-in-tabs-i/</guid>
+      </item>
+      
+    
+      
+      <item>
         <title>Creating an Excel Add-in in D</title>
         
           <description>&lt;p&gt;Next in my series on Excel add-ins is integration with the &lt;a href=&quot;https://dlang.org/&quot;&gt;D&lt;/a&gt; programming language.&lt;/p&gt;

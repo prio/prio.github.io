@@ -1,4 +1,82 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-09-24T11:21:38+01:00</updated><id>/</id><title type="html">Jonathan Harrington</title><subtitle>Just my thoughts, right or wrong</subtitle><entry><title type="html">Creating an Excel Add-in in D</title><link href="/d_excel_addin/" rel="alternate" type="text/html" title="Creating an Excel Add-in in D" /><published>2020-09-24T00:00:00+01:00</published><updated>2020-09-24T00:00:00+01:00</updated><id>/d_excel_addin</id><content type="html" xml:base="/d_excel_addin/">&lt;p&gt;Next in my series on Excel add-ins is integration with the &lt;a href=&quot;https://dlang.org/&quot;&gt;D&lt;/a&gt; programming language.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-09-25T09:40:44+01:00</updated><id>/</id><title type="html">Jonathan Harrington</title><subtitle>Just my thoughts, right or wrong</subtitle><entry><title type="html">This week in tabs</title><link href="/this-week-in-tabs-i/" rel="alternate" type="text/html" title="This week in tabs" /><published>2020-09-25T00:00:00+01:00</published><updated>2020-09-25T00:00:00+01:00</updated><id>/this-week-in-tabs-i</id><content type="html" xml:base="/this-week-in-tabs-i/">&lt;p&gt;Some interesting data, maths and programming related content I stumbled across recently.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/NumPy_logo_2020.svg/220px-NumPy_logo_2020.svg.png&quot; alt=&quot;NumPy logo&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The NumPy paper! Charles R. Harris et. al. publish a paper about &lt;a href=&quot;https://numpy.org/&quot;&gt;NumPy&lt;/a&gt; in Nature. NumPy is the foundation of pretty much every Python data related library and tool so cite liberally &lt;a href=&quot;https://www.nature.com/articles/s41586-020-2649-2&quot;&gt;link&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Barry Render highlights some of the difficulties suppliers are currently having with PPE inventory &lt;a href=&quot;https://heizerrenderom.wordpress.com/2020/09/24/om-in-the-news-supply-chains-struggle-to-maintain-ppe-inventory/&quot;&gt;Article&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Laura Labert discussed a paper she and a student recently published which describes a discrete event simulation approach to planning an election during the current COVID-19 pandemic. Recommendations include more staff and a sperate queue for those deemed high-risk. &lt;a href=&quot;https://punkrockor.com/2020/09/23/resilient-voting-systems-during-the-covid-19-pandemic-a-discrete-event-simulation-approach/&quot;&gt;link&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h1 id=&quot;python-39&quot;&gt;Python 3.9&lt;/h1&gt;
+
+&lt;p&gt;Python 3.9 beta is out &lt;a href=&quot;https://www.python.org/downloads/release/python-390b3/&quot;&gt;link&lt;/a&gt;. A few of the new features it will bring:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;a href=&quot;https://www.python.org/dev/peps/pep-0584&quot;&gt;PEP 584: Add Union Operators To dict&lt;/a&gt;&lt;/strong&gt;
+The | union and update |= operators are now available for dictionaries.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Python&quot;&gt;# Union
+d3 = d1 | d2
+
+# Update
+d1.update(2)
+# becomes
+d1 |= d2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href=&quot;https://www.python.org/dev/peps/pep-0585/&quot;&gt;PEP 585: Type Hinting Generics In Standard Collections&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Standard collection types are now generic allowing them to be used in type hints. This has been possible since 3.7 by importing annotations from future but this update ensures external tools such as Mypy will behave as expected.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Python&quot;&gt;from __future__ import annotations
+
+def find(haystack: dict[str, list[int]]) -&amp;gt; int:
+	return 0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;a href=&quot;https://www.python.org/dev/peps/pep-0593/&quot;&gt;PEP 593: Flexible function and variable annotations&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Annotated type is added to the typing module to allow metadata to be applied to existing types. The example below shows two ints annotated with &lt;code class=&quot;highlighter-rouge&quot;&gt;c&lt;/code&gt; information.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Python&quot;&gt;UnsignedShort = Annotated[int, struct2.ctype('H')]
+SignedChar = Annotated[int, struct2.ctype('b')]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;a href=&quot;https://www.python.org/dev/peps/pep-0616/&quot;&gt;PEP 616: String methods to remove prefixes and suffixes&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Two new string methods added:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Python&quot;&gt;&amp;gt; &quot;python&quot;.removeprefix(&quot;py&quot;) # &quot;thon&quot;
+&amp;gt; &quot;python&quot;.removesuffix(&quot;on&quot;) # &quot;pyth&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;a href=&quot;https://www.python.org/dev/peps/pep-0617/&quot;&gt;PEP 617: New PEG parser for CPython&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A behind the scenes change, but I am very interested in parsing techniques so its nice to see Python get this update.&lt;/p&gt;
+
+&lt;p&gt;(Side note: this reminded me of the great work Alessandro Warth did on &lt;a href=&quot;http://tinlizzie.org/ometa/&quot;&gt;OMeta&lt;/a&gt; a few years ago as part of his PhD. It turns out, for me, “a few years ago” now equals 13 :grimacing: )&lt;/p&gt;
+
+&lt;h1 id=&quot;the-algorithm&quot;&gt;“The algorithm”&lt;/h1&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://media.wired.com/photos/5f61109fd2d0ba5ef0f2302f/master/w_2560%2Cc_limit/ff_youtube_top_.jpg&quot; alt=&quot;Wired Cover&quot; style=&quot;zoom: 25%;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;“Sargent’s videos are intentionally lo-fi affairs. There’s often a slide show that might include images of Copernicus (deluded), astronauts in space (faked), or Antarctica (made off-limits by a cabal of governments to hide Earth’s edge), which appear onscreen as he speaks in a chill, avuncular voice-over …. Crucial to his success, he says, was YouTube’s recommendation system” - &lt;a href=&quot;https://www.wired.com/story/youtube-algorithm-silence-conspiracy-theories/&quot;&gt;Wired&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;A recent episode of the Not So Standard Deviations discussed how “the algorithm” was the reason for TikToks valuation &lt;a href=&quot;https://nssdeviations.com/114-we-need-tiktok-help&quot;&gt;link&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;When discussed in the context of YouTube it is often blamed for the rise of bizarre conspiracy theories such as a belief in flat earth theories, QAnon and the rise of the far right. A recent episode of the real story by the BBC world service went into more detail on the QAnon conspiracy &lt;a href=&quot;https://www.bbc.co.uk/programmes/w3cszcnc&quot;&gt;link&lt;/a&gt;. The rabbit hole podcast from the New York times was recommended as a more in-depth review of the subject &lt;a href=&quot;https://www.nytimes.com/2020/04/16/technology/rabbit-hole-podcast-kevin-roose.html&quot;&gt;link&lt;/a&gt; .&lt;/p&gt;
+
+&lt;p&gt;And finally, Wired discusses the issues YouTube have had using AI to moderate content &lt;a href=&quot;https://www.wired.com/story/youtube-algorithm-silence-conspiracy-theories/&quot;&gt;link&lt;/a&gt; &lt;a href=&quot;http://marketdesigner.blogspot.com/2020/09/filtering-inappropriate-content-is.html&quot;&gt;[via]&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h1 id=&quot;conferencesvideosstreams&quot;&gt;Conferences/Videos/Streams&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The ICML (International Conference on Machine Learning)  talks are now online &lt;a href=&quot;https://slideslive.com/icml-2020&quot;&gt;link&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;CPPcon finished recently and its videos are also appearing on its YouTube channel &lt;a href=&quot;https://www.youtube.com/user/CppCon&quot;&gt;link&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Markus Loning shows off &lt;a href=&quot;https://github.com/alan-turing-institute/sktime&quot;&gt;sktime&lt;/a&gt;, a machine learning library for time series, at PyData Fest Amsterdam &lt;a href=&quot;https://www.youtube.com/watch?v=Wf2naBHRo8Q&amp;amp;t=424s&quot;&gt;link&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;All the videos from this years excellent JuliaConf are now also online &lt;a href=&quot;https://www.youtube.com/playlist?list=PLP8iPy9hna6Tl2UHTrm4jnIYrLkIcAROR&quot;&gt;link&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">Some interesting data, maths and programming related content I stumbled across recently.</summary></entry><entry><title type="html">Creating an Excel Add-in in D</title><link href="/d_excel_addin/" rel="alternate" type="text/html" title="Creating an Excel Add-in in D" /><published>2020-09-24T00:00:00+01:00</published><updated>2020-09-24T00:00:00+01:00</updated><id>/d_excel_addin</id><content type="html" xml:base="/d_excel_addin/">&lt;p&gt;Next in my series on Excel add-ins is integration with the &lt;a href=&quot;https://dlang.org/&quot;&gt;D&lt;/a&gt; programming language.&lt;/p&gt;
 
 &lt;h1 id=&quot;introduction&quot;&gt;Introduction&lt;/h1&gt;
 
@@ -917,161 +995,4 @@ def secure(request):
 
 &lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
 
-&lt;p&gt;It is very easy to get started with keycloak and it offers many tried and tested features that would take significant effort to reimplement yourself. Implementing authentication has always been a tedious and difficult to get right task. If you plan to use microservices or multiple web applications as part of your solution, keycloak can save you significant work and prevent your users from having to log in to the multiple different applications.&lt;/p&gt;</content><author><name></name></author><summary type="html">Keycloak is an open source identity and access management (IAM) and single sign on (SSO) solution from Redhat. If you have multiple web applications or services that require authentication, keycloak saves you from having to write the same authentication code over and over again, and allows your users to authenticate against multiple applications without having to log in multiple times. In this post I will show how to set up Keycloak running locally, and how to use it as the authentication provider for a Django application. This post uses Python 3.x.</summary></entry><entry><title type="html">The Amiga</title><link href="/the-amiga/" rel="alternate" type="text/html" title="The Amiga" /><published>2017-01-14T00:00:00+00:00</published><updated>2017-01-14T00:00:00+00:00</updated><id>/the-amiga</id><content type="html" xml:base="/the-amiga/">&lt;p&gt;The Amiga 500+ wasn’t my first computer when I was a child (the ZX Spectrum has that honor), but it was the one I received at the age when I wanted to do more than just play games and for that reason it stands out in my memory as being something a bit special. With the demise of Commodore and the onset of my teenage years, I  drifted away from computers for a while only occasionally playing a Playstation at a friends houses. It wasn’‘t until I started University that I got interested and excited by computers again. That period of my life was Linux, the free software movement and learning to code. When I began working, and had some cash I moved to Macs and I stopped spending my evenings compiling kernels. It is only in the past year or so I have started to take a look back at the 8-bit and 16-bit systems of my youth and appreciate them anew.
-&lt;!--excerpt--&gt;&lt;/p&gt;
-
-&lt;p&gt;As I delve back into the Amiga community, I am continuously surprised and delighted by its size, its enthusiasm and at the directions it has taken since the bankruptcy of Commodore back in the 90s.&lt;/p&gt;
-
-&lt;h1 id=&quot;hardware&quot;&gt;Hardware&lt;/h1&gt;
-
-&lt;p&gt;The hardware that was available from Commodore in the 80’’s and 90’’s is known as “classic” hardware. These systems are based on the Motorola 68000 (68k) CPU and a number of custom chipsets created by Commodore. Older Amigas use OCS (Original Chip Set) components or the slightly improved ECS (Enhanced Chip Set) components, whereas the newer Amigas, A4000, A1200 and the CD32 use the AGA (Advanced Graphics Architecture) chipset. Classic hardware is still the most widely used Amiga hardware today and a cottage industry has sprung up making add-ons and accelerators that help keep these systems usable. The easiest way to see what is available is to browse a few of the online Amiga stores and see what they offer.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://icomp.de/shop-icomp/en/&quot;&gt;Individual Computers&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://amigastore.eu/en/&quot;&gt;AmigaStore&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://amigakit.leamancomputing.com/&quot;&gt;AmigaKit&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.amigashop.org/&quot;&gt;AmigaShop&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://www.vesalia.de/&quot;&gt;Vesalia&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;If you are buying some classic hardware, or still have some up in the attic, it is worth getting the capacitors on the board replaced to prevent leaks from damaging the mainboard. This is something you can do yourself (plenty of youtube videos on the subject), or there are a few companies that will do it for you, &lt;a href=&quot;http://amigakit.leamancomputing.com/catalog/product_info.php?products_id=932&quot;&gt;Leaman Computing&lt;/a&gt; being one example.&lt;/p&gt;
-
-&lt;p&gt;If you do plan to buy a classic Amiga, I would suggest you go with an A600 or an A1200. The PCMCIA slot and IDE interface on both makes it inexpensive to add a compact flash hard drive and a network card which improves the usability of the system no end. Also note the easiest way to get them working with your TV is using a SCART connection, so don’‘t throw out your old TV just yet.&lt;/p&gt;
-
-&lt;h2 id=&quot;apollo&quot;&gt;Apollo&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://www.apollo-accelerators.com/&quot;&gt;The Apollo team&lt;/a&gt; deserves their own section due to the ambition of what they have set out to achieve. While manufacturors like &lt;a href=&quot;https://icomp.de/shop-icomp/en/&quot;&gt;Individual Computers&lt;/a&gt; are building more traditional accelerators for classic hardware, the Apollo team have created the aptly named Vampire Accelerator. They call it an accelerator, but it is much more. They have effectively replicated most of the Amigas chipset on an FPGA (more below) and though it is installed in your Amiga case and you use the same keyboard and power supply etc. it is more of a mainboard replacement than a traditional accelerator. It allows you to use SD cards, has HDMI output, adds RAM and serious CPU power to your classic system. They are also working on a version that will extend the AGA instruction set. They really are only one step away from creating brand new 68k compatible Amiga mainboards. There are many sold at this stage but I am still in the queue to purchase one, it appears the team underestimated how excited people would be about the work they are doing.&lt;/p&gt;
-
-&lt;h2 id=&quot;next-gen-amiga&quot;&gt;Next Gen Amiga&lt;/h2&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/A1_X1000_case.jpg&quot; alt=&quot;Amiga X1000&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The other main type of hardware available that still has the Amiga brand, are the machines being built by &lt;a href=&quot;http://a-eon.biz/&quot;&gt;A-EON&lt;/a&gt;. This company seems to be a labour of love by a few wealthy Amiga fans that wanted modern Amiga hardware. It is &lt;strong&gt;not binary&lt;/strong&gt; compatible with classic Amiga hardware (it is PowerPc based rather than Motorola 68k based) and uses a more modern version of the Amiga operating system called &lt;a href=&quot;https://en.wikipedia.org/wiki/AmigaOS_4&quot;&gt;AmigaOS 4&lt;/a&gt;. Older Amiga software can be used via emulation or can be ported where the source is available.&lt;/p&gt;
-
-&lt;h2 id=&quot;fpga-systems&quot;&gt;FPGA Systems&lt;/h2&gt;
-
-&lt;p&gt;An FPGA circuit is one which can be programmed to behave like another circuit and chipset. For example, you can take a FPGA, and program it to behave like an old &lt;a href=&quot;http://www.specnext.com/&quot;&gt;Spectrum&lt;/a&gt; or an Amiga. The advantage of FPGA emulation over software emulation is that you get a much better representation of a real Amiga, as you are not at the mercy of a host operating system.&lt;/p&gt;
-
-&lt;p&gt;There has been a number of FPGA projects in the past, &lt;a href=&quot;https://en.wikipedia.org/wiki/Minimig&quot;&gt;Minimig&lt;/a&gt; is probably the name you will come across most often, but the only project with a product for sale at the moment is the &lt;a href=&quot;http://harbaum.org/till/mist/index.shtml&quot;&gt;MiST&lt;/a&gt;. It will set you back around €200 but what you get is a hardware device that behaves just like a classic Amiga. The really exciting thing about this project is that both the hardware designs and the “core” that emulates the Amiga are &lt;a href=&quot;https://github.com/mist-developen&quot;&gt;Open source&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;emulators&quot;&gt;Emulators&lt;/h2&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/Amiga_Forever_2008_on_Vista.png&quot; alt=&quot;Amiga Forever&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;An Emulator is a piece of software that emulates a piece of hardware. The most widely used Amiga emulator is &lt;a href=&quot;https://en.wikipedia.org/wiki/UAE_(emulator)&quot;&gt;UAE&lt;/a&gt; via its various ports and forks. Two of the more popular versions being &lt;a href=&quot;http://www.winuae.net/&quot;&gt;WinUAE&lt;/a&gt; and &lt;a href=&quot;https://fs-uae.net/&quot;&gt;FS-UAE&lt;/a&gt;. These emulators are quiet stable and performant, and you really don’‘t need to own Amiga hardware to use your old Amiga favorites. However, setup and configuration is quiet involved and can be off putting to newcomers. The easiest way to emulate an Amiga is using the &lt;a href=&quot;https://www.amigaforever.com/&quot;&gt;Amiga Forever&lt;/a&gt; product from Cloanto which includes all the files you need and an easy to use user interface.&lt;/p&gt;
-
-&lt;h1 id=&quot;operating-systems&quot;&gt;Operating Systems&lt;/h1&gt;
-
-&lt;p&gt;A myriad of operating systems, both new and old, are now used by Amigans.&lt;/p&gt;
-
-&lt;h2 id=&quot;workbench--amigaos&quot;&gt;Workbench &amp;amp; AmigaOS&lt;/h2&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/AmigaOS_4-1_Update_2.png&quot; alt=&quot;AmigaOS 4.1&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;This was the name of the operating system originally released with Commodore Amigas in the 80s and 90s. The last version of the OS released using the Workbench name was 3.1. It was the last Commodore release.&lt;/p&gt;
-
-&lt;p&gt;After the demise of Commodore, Haage &amp;amp; Partner were commissioned to release a new version of the Amiga operating system. From this release onwards the OS was rebranded AmigaOS and Workbench was used to describe the graphical file manager. Later 3.x versions were aimed at 68k hardware machines, and could take advantage of PowerPc accelerators if they were attached (using a kernel called WarpOS). From Amiga 4.0 onwards PowerPC has become the main target platform, although 4.1 classic can still be run on 68k hardware if you have a PowerPC accelerator. The name change (and new kernels) confused me quiet a bit initially.&lt;/p&gt;
-
-&lt;style type=&quot;text/css&quot;&gt;
-table.gridtable {
-	font-family: verdana,arial,sans-serif;
-	font-size:11px;
-	color:#333333;
-	border-width: 1px;
-	border-color: #666666;
-	border-collapse: collapse;
-}
-table.gridtable th {
-	border-width: 1px;
-	padding: 8px;
-	border-style: solid;
-	border-color: #666666;
-	background-color: #dedede;
-}
-table.gridtable td {
-	border-width: 1px;
-	padding: 8px;
-	border-style: solid;
-	border-color: #666666;
-	background-color: #ffffff;
-}
-&lt;/style&gt;
-
-&lt;table class=&quot;gridtable&quot;&gt;
-&lt;tr&gt;
-&lt;th&gt;Operating System&lt;/th&gt;
-&lt;th&gt;Version&lt;/th&gt;
-&lt;th&gt;Developer&lt;/th&gt;
-&lt;th&gt;Shipped With&lt;/th&gt;
-&lt;th&gt;Primary Target Platform&lt;/th&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Workbench&lt;/td&gt;
-&lt;td&gt;1.x&lt;/td&gt;
-&lt;td&gt;Commodore&lt;/td&gt;
-&lt;td&gt;1000, 2000, 500, CDTV&lt;/td&gt;
-&lt;td&gt;Classic Amigas&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Workbench&lt;/td&gt;
-&lt;td&gt;2.x&lt;/td&gt;
-&lt;td&gt;Commodore&lt;/td&gt;
-&lt;td&gt;3000, 500+, 600&lt;/td&gt;
-&lt;td&gt;Classic Amigas&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Workbench&lt;/td&gt;
-&lt;td&gt;3.0, 3.1&lt;/td&gt;
-&lt;td&gt;Commodore&lt;/td&gt;
-&lt;td&gt;4000, 1200, CD32&lt;/td&gt;
-&lt;td&gt;Classic Amigas&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;AmigaOS (incl WarpOS)&lt;/td&gt;
-&lt;td&gt;3.5, 3.9&lt;/td&gt;
-&lt;td&gt;Haage &amp;amp; Partner&lt;/td&gt;
-&lt;td&gt;None&lt;/td&gt;
-&lt;td&gt;Classic Amigas&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;AmigaOS&lt;/td&gt;
-&lt;td&gt;4.x&lt;/td&gt;
-&lt;td&gt;Hyperion Entertainment&lt;/td&gt;
-&lt;td&gt;AmigaOne Systems&lt;/td&gt;
-&lt;td&gt;PowerPC Amigas&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/table&gt;
-
-&lt;h2 id=&quot;morphos&quot;&gt;MorphOS&lt;/h2&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/AmbientDesktop.png&quot; alt=&quot;MorpOS Ambient Desktop&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://www.morphos-team.net/&quot;&gt;MorphOS&lt;/a&gt; is an Amiga like operating system used by many in the Amiga community. It uses much of the same software as Workbech/AmigaOS and offers API compatibility with Workbench 3.1 One of its main draws is that it runs on old PowerPC Apple hardware that can be picked up relatively cheaply on eBay. It can also be run on A4000 &amp;amp; A1200 with PowerPc accelerators and on Genesi and ACube hardware.&lt;/p&gt;
-
-&lt;p&gt;If you want a Next Gen Amiga but don’‘t want to commit to the price of an AmigaOne machine, or you have an old PowerPC Mac lying around, it is definitely worth a look.&lt;/p&gt;
-
-&lt;h2 id=&quot;aros&quot;&gt;AROS&lt;/h2&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/Icaros131.jpg&quot; alt=&quot;AROS Desktop&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://aros.sourceforge.net/&quot;&gt;AROS&lt;/a&gt; is an open source Amiga like operating system. It was originally targeted at x86 hardware but has since been ported to PowerPC, 68k (so you can run it on classic Amigas) and Arm (the Raspberry Pi). Like MorphOS is has API compatibility with Workbench 3.1 and it is binary compatible when run on classic Amigas. I think having an open source cross platform Amiga OS than can run on Amigas, Laptops and Raspberry Pis is a very exciting prospect, and I can’‘t wait to delve deeper into this project.&lt;/p&gt;
-
-&lt;h1 id=&quot;resources&quot;&gt;Resources&lt;/h1&gt;
-
-&lt;p&gt;There are plenty of resources both on and offline, here are a few of my favorites.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Software:&lt;/strong&gt; Like most things, Amiga software is scattered all over the web, but the main central repository is still &lt;a href=&quot;http://aminet.net/&quot;&gt;Aminet&lt;/a&gt;. I was never able to get my Amiga online when I was younger (too expensive for a 10 year old) so it is nice to finally be able to use Aminet after all these years. Software can also be purchased from some of the shops I mentioned above, and &lt;a href=&quot;http://amiga.net.pl/index.php?kwt=4191&amp;amp;hss=1&amp;amp;lng=eng&quot;&gt;Amiga.net.pl&lt;/a&gt; seems to be the preferred publisher for new Amiga games at the moment (yes, new Classic Amiga games in 2017). And productivity applications like Personal Paint and more can be purchased from the &lt;a href=&quot;http://www.amistore.net/&quot;&gt;AmiStore&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/Amiga_Format_magazine_-issue_136_-_front_cover-.jpg&quot; alt=&quot;Last issue of Amiga Format&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Magazines:&lt;/strong&gt; &lt;a href=&quot;http://www.amigafuture.de/&quot;&gt;Amiga Future&lt;/a&gt; is an English and German magazine still being published. I still enjoy reading Computer magazines and plan to treat myself to a subscription this year. And although it is not Amiga specific, &lt;a href=&quot;http://www.retrogamer.net/&quot;&gt;Retro Gamer&lt;/a&gt; is also worth a look. It covers older games and features interviews and in-depth articles that you just don’‘t see online. Scans of older Amiga magazines are also available for free on the &lt;a href=&quot;https://archive.org/details/computermagazines&quot;&gt;Internet Archive&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Podcasts:&lt;/strong&gt; &lt;a href=&quot;http://www.amigospodcast.com/&quot;&gt;Amigos&lt;/a&gt; is an American Amiga podcast that covers a lot of classic Amiga games and hardware. &lt;a href=&quot;http://amicast.ppa.pl/&quot;&gt;Amicast&lt;/a&gt; is a great podcast from Poland (but presented in english) that focuses on Next Gen Amigas and also has some great interviews with members of the Amiga community and people from the Amigas history. And finally, although not solely Amiga focused, the &lt;a href=&quot;http://www.theretrohour.com/&quot;&gt;Retro hour&lt;/a&gt; is one of my favorite podcasts. Hosted by two big Amiga fans its a great place for the latest Amiga news and some great interviews.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;News sites and Forums:&lt;/strong&gt; &lt;a href=&quot;http://www.lemonamiga.com/&quot;&gt;Lemon Amiga&lt;/a&gt;, &lt;a href=&quot;http://amiga-news.de/en/&quot;&gt;Amiga News&lt;/a&gt;, &lt;a href=&quot;http://www.indieretronews.com/&quot;&gt;Indie Retro News&lt;/a&gt; , &lt;a href=&quot;http://eab.abime.net/&quot;&gt;English Amiga Board&lt;/a&gt; and &lt;a href=&quot;http://www.amibay.com/are&quot;&gt;AmiBay&lt;/a&gt; are sites I keep an eye on for the latest Amiga news.&lt;/p&gt;
-
-&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
-
-&lt;p&gt;The Amiga community is still very active and vibrant, over 30 years on from the release of the first Amiga 1000. The continued enthusiasm this Computer generates continues to surprise me. And community led developments such as MiST and AROS, and commercial led projects like Next Gen Hardware and Apollo accelerators hopefully mean the Amiga will continue to be an interesting platform far into the future.&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;Images in this post under CC license, thanks to Bill Bertram, Paolo Besser&lt;/em&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">The Amiga 500+ wasn’t my first computer when I was a child (the ZX Spectrum has that honor), but it was the one I received at the age when I wanted to do more than just play games and for that reason it stands out in my memory as being something a bit special. With the demise of Commodore and the onset of my teenage years, I drifted away from computers for a while only occasionally playing a Playstation at a friends houses. It wasn’‘t until I started University that I got interested and excited by computers again. That period of my life was Linux, the free software movement and learning to code. When I began working, and had some cash I moved to Macs and I stopped spending my evenings compiling kernels. It is only in the past year or so I have started to take a look back at the 8-bit and 16-bit systems of my youth and appreciate them anew.</summary></entry></feed>
+&lt;p&gt;It is very easy to get started with keycloak and it offers many tried and tested features that would take significant effort to reimplement yourself. Implementing authentication has always been a tedious and difficult to get right task. If you plan to use microservices or multiple web applications as part of your solution, keycloak can save you significant work and prevent your users from having to log in to the multiple different applications.&lt;/p&gt;</content><author><name></name></author><summary type="html">Keycloak is an open source identity and access management (IAM) and single sign on (SSO) solution from Redhat. If you have multiple web applications or services that require authentication, keycloak saves you from having to write the same authentication code over and over again, and allows your users to authenticate against multiple applications without having to log in multiple times. In this post I will show how to set up Keycloak running locally, and how to use it as the authentication provider for a Django application. This post uses Python 3.x.</summary></entry></feed>

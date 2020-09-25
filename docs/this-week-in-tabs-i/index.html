@@ -11,7 +11,7 @@
 
 
 
-    <title>Creating an Excel Add-in in D</title>
+    <title>This week in tabs</title>
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Styles'n'Scripts -->
@@ -36,22 +36,22 @@
     <!-- This tag outputs SEO meta+structured data and other important settings -->
     <meta name="description" content="Just my thoughts, right or wrong" />
     <link rel="shortcut icon" href="/assets/images/favicon.png" type="image/png" />
-    <link rel="canonical" href="/d_excel_addin/" />
+    <link rel="canonical" href="/this-week-in-tabs-i/" />
     <meta name="referrer" content="no-referrer-when-downgrade" />
 
      <!--title below is coming from _includes/dynamic_title-->
     <meta property="og:site_name" content="Jonathan Harrington" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Creating an Excel Add-in in D" />
+    <meta property="og:title" content="This week in tabs" />
     <meta property="og:description" content="Just my thoughts, right or wrong" />
-    <meta property="og:url" content="/d_excel_addin/" />
-    <meta property="og:image" content="/images/ged048.jpg" />
+    <meta property="og:url" content="/this-week-in-tabs-i/" />
+    <meta property="og:image" content="/images/pexels-kei-scampa-3009487.jpg" />
     <meta property="article:publisher" content="https://www.facebook.com/" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Creating an Excel Add-in in D" />
+    <meta name="twitter:title" content="This week in tabs" />
     <meta name="twitter:description" content="Just my thoughts, right or wrong" />
     <meta name="twitter:url" content="/" />
-    <meta name="twitter:image" content="/images/ged048.jpg" />
+    <meta name="twitter:image" content="/images/pexels-kei-scampa-3009487.jpg" />
     <meta name="twitter:label1" content="Written by" />
     <meta name="twitter:data1" content="Jonathan Harrington" />
     <meta name="twitter:site" content="@jonathanharring" />
@@ -68,16 +68,16 @@
         "name": "Jonathan Harrington",
         "logo": "/"
     },
-    "url": "/d_excel_addin/",
+    "url": "/this-week-in-tabs-i/",
     "image": {
         "@type": "ImageObject",
-        "url": "/images/ged048.jpg",
+        "url": "/images/pexels-kei-scampa-3009487.jpg",
         "width": 2000,
         "height": 666
     },
     "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "/d_excel_addin/"
+        "@id": "/this-week-in-tabs-i/"
     },
     "description": "Just my thoughts, right or wrong"
 }
@@ -92,7 +92,7 @@
     </script> -->
 
     <meta name="generator" content="Jekyll 3.6.2" />
-    <link rel="alternate" type="application/rss+xml" title="Creating an Excel Add-in in D" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title="This week in tabs" href="/feed.xml" />
 
 
 </head>
@@ -152,127 +152,98 @@ into the {body} of the default.hbs template -->
 
             <header class="post-full-header">
                 <section class="post-full-meta">
-                    <time class="post-full-meta-date" datetime="24 September 2020">24 September 2020</time>
+                    <time class="post-full-meta-date" datetime="25 September 2020">25 September 2020</time>
                     
                 </section>
-                <h1 class="post-full-title">Creating an Excel Add-in in D</h1>
+                <h1 class="post-full-title">This week in tabs</h1>
             </header>
 
             
-            <figure class="post-full-image" style="background-image: url(/images/ged048.jpg)">
+            <figure class="post-full-image" style="background-image: url(/images/pexels-kei-scampa-3009487.jpg)">
             </figure>
             
 
             <section class="post-full-content">
                 <div class="kg-card-markdown">
-                    <p>Next in my series on Excel add-ins is integration with the <a href="https://dlang.org/">D</a> programming language.</p>
+                    <p>Some interesting data, maths and programming related content I stumbled across recently.</p>
 
-<h1 id="introduction">Introduction</h1>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/NumPy_logo_2020.svg/220px-NumPy_logo_2020.svg.png" alt="NumPy logo" /></p>
 
-<p>“D is a general-purpose programming language with static typing, systems-level access, and C-like syntax. With the D Programming Language, write fast, read fast, and run fast” (D website)</p>
+<p>The NumPy paper! Charles R. Harris et. al. publish a paper about <a href="https://numpy.org/">NumPy</a> in Nature. NumPy is the foundation of pretty much every Python data related library and tool so cite liberally <a href="https://www.nature.com/articles/s41586-020-2649-2">link</a>.</p>
 
-<p>D is often a language I have seen mentioned but its not one I am overly familiar with. I believe the first time I landed on the website it was not published under an open source licence, which at the time was a deal breaker for me. It has since become more open and in recent years has been merged into GCC. For this reason I felt it was worth another look.</p>
+<p>Barry Render highlights some of the difficulties suppliers are currently having with PPE inventory <a href="https://heizerrenderom.wordpress.com/2020/09/24/om-in-the-news-supply-chains-struggle-to-maintain-ppe-inventory/">Article</a></p>
 
-<h1 id="excel-d">Excel-D</h1>
+<p>Laura Labert discussed a paper she and a student recently published which describes a discrete event simulation approach to planning an election during the current COVID-19 pandemic. Recommendations include more staff and a sperate queue for those deemed high-risk. <a href="https://punkrockor.com/2020/09/23/resilient-voting-systems-during-the-covid-19-pandemic-a-discrete-event-simulation-approach/">link</a>.</p>
 
-<p>Rather than wrap the code in an Excel-DNA add-in like I did with the <a href="https://blog.jonharrington.org/calling-rust-from-excel/">Rust</a> example, a D wrapper around the Excel SDK called <a href="https://github.com/symmetryinvestments/excel-d">Excel-D</a> exists. A tool called <a href="https://github.com/symmetryinvestments/autowrap">autowrap</a> also exists which can wrap D code for Python, Excel and C# so an Excel-DNA approach could also be taken. In this post I will use the fully native approach.</p>
+<h1 id="python-39">Python 3.9</h1>
 
-<h2 id="project">Project</h2>
+<p>Python 3.9 beta is out <a href="https://www.python.org/downloads/release/python-390b3/">link</a>. A few of the new features it will bring:</p>
 
-<p>The standard D build tool is called <a href="https://github.com/dlang/dub">dub</a>. We can use it to create our project and build the xll.</p>
+<p><strong><a href="https://www.python.org/dev/peps/pep-0584">PEP 584: Add Union Operators To dict</a></strong>
+The | union and update |= operators are now available for dictionaries.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ dub init exceld
-Package recipe format (sdl/json) [json]: sdl
-Name [exceld]:
-Description [A minimal D application.]:
-Author name []:
-License [proprietary]:
-Copyright string [Copyright ┬® 2020, ]:
-Add dependency (leave empty to skip) []: excel-d
-Adding dependency excel-d ~&gt;0.5.8
-Add dependency (leave empty to skip) []:
-Successfully created an empty project in 'exceld'.
-Package successfully created in exceld
-</code></pre></div></div>
+<pre><code class="language-Python"># Union
+d3 = d1 | d2
 
-<p>Next delete source/app.d and create main.d and funcs.d in the source folder.</p>
+# Update
+d1.update(2)
+# becomes
+d1 |= d2
+</code></pre>
+<p><strong><a href="https://www.python.org/dev/peps/pep-0585/">PEP 585: Type Hinting Generics In Standard Collections</a></strong></p>
 
-<p>main.d</p>
-<div class="language-d highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="n">xlld</span><span class="p">;</span>
-<span class="k">mixin</span><span class="p">(</span><span class="n">wrapAll</span><span class="p">!(</span><span class="kp">__MODULE__</span><span class="p">,</span> <span class="s">"funcs"</span><span class="p">));</span>
-</code></pre></div></div>
+<p>Standard collection types are now generic allowing them to be used in type hints. This has been possible since 3.7 by importing annotations from future but this update ensures external tools such as Mypy will behave as expected.</p>
 
-<p>funcs.d</p>
-<div class="language-d highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="n">xlld</span><span class="p">;</span>
+<pre><code class="language-Python">from __future__ import annotations
 
-<span class="nd">@Register</span><span class="p">(</span><span class="n">ArgumentText</span><span class="p">(</span><span class="s">"Array to add"</span><span class="p">),</span>
-		<span class="n">HelpTopic</span><span class="p">(</span><span class="s">"Adds all cells in an array"</span><span class="p">),</span>
-		<span class="n">FunctionHelp</span><span class="p">(</span><span class="s">"Adds all cells in an array"</span><span class="p">),</span>
-		<span class="n">ArgumentHelp</span><span class="p">([</span><span class="s">"The array to add"</span><span class="p">]))</span>
-<span class="kt">double</span> <span class="n">FuncAddEverything</span><span class="p">(</span><span class="kt">double</span><span class="p">[][]</span> <span class="n">args</span><span class="p">)</span> <span class="k">nothrow</span> <span class="nd">@nogc</span> <span class="p">{</span>
-	<span class="k">import</span> <span class="n">std</span><span class="p">.</span><span class="n">algorithm</span><span class="p">:</span> <span class="n">fold</span><span class="p">;</span>
-	<span class="k">import</span> <span class="n">std</span><span class="p">.</span><span class="n">math</span><span class="p">:</span> <span class="n">isNaN</span><span class="p">;</span>
+def find(haystack: dict[str, list[int]]) -&gt; int:
+	return 0
+</code></pre>
 
-	<span class="kt">double</span> <span class="n">ret</span> <span class="p">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="k">foreach</span><span class="p">(</span><span class="n">row</span><span class="p">;</span> <span class="n">args</span><span class="p">)</span>
-		<span class="n">ret</span> <span class="p">+=</span> <span class="n">row</span><span class="p">.</span><span class="n">fold</span><span class="p">!((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">b</span><span class="p">.</span><span class="n">isNaN</span> <span class="p">?</span> <span class="mf">0.0</span> <span class="p">:</span> <span class="n">a</span> <span class="p">+</span> <span class="n">b</span><span class="p">)(</span><span class="mf">0.0</span><span class="p">);</span>
-	<span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div></div>
-<p>Edit the build file, dub.sdl, to contain the following:</p>
+<p><strong><a href="https://www.python.org/dev/peps/pep-0593/">PEP 593: Flexible function and variable annotations</a></strong></p>
 
-<div class="language-d highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">name</span> <span class="s">"exceld"</span>
-<span class="n">description</span> <span class="s">"A minimal D application."</span>
-<span class="n">authors</span> <span class="s">""</span>
-<span class="n">copyright</span> <span class="s">"Copyright © 2020, "</span>
-<span class="n">license</span> <span class="s">"proprietary"</span>
-<span class="n">dependency</span> <span class="s">"excel-d"</span> <span class="k">version</span><span class="p">=</span><span class="s">"~&gt;0.5.7"</span>
-<span class="n">targetType</span> <span class="s">"dynamicLibrary"</span>
-<span class="n">dflags</span> <span class="s">"-dip25"</span> <span class="s">"-dip1000"</span>
+<p>Annotated type is added to the typing module to allow metadata to be applied to existing types. The example below shows two ints annotated with <code class="highlighter-rouge">c</code> information.</p>
 
-<span class="n">configuration</span> <span class="s">"xll"</span> <span class="p">{</span>
-    <span class="n">preBuildCommands</span> <span class="s">"dub run -c def --nodeps -q -- exceld.def"</span>
-    <span class="n">sourceFiles</span> <span class="s">"exceld.def"</span>
-    <span class="err">#</span> <span class="n">must</span> <span class="n">have</span> <span class="n">the</span> <span class="n">appropriate</span> <span class="mi">32</span><span class="p">/</span><span class="mi">64</span> <span class="n">bit</span> <span class="n">Excel</span> <span class="n">SDK</span> <span class="n">xlcall32</span><span class="p">.</span><span class="n">lib</span> <span class="k">in</span> <span class="n">the</span> <span class="n">path</span> <span class="n">of</span> <span class="n">the</span> <span class="n">app</span>
-    <span class="err">#</span> <span class="n">unfortunately</span> <span class="n">they</span><span class="err">'</span><span class="n">re</span> <span class="n">both</span> <span class="n">called</span> <span class="n">xlcall32</span><span class="p">.</span><span class="n">lib</span>
+<pre><code class="language-Python">UnsignedShort = Annotated[int, struct2.ctype('H')]
+SignedChar = Annotated[int, struct2.ctype('b')]
+</code></pre>
 
-    <span class="n">libs</span> <span class="s">"xlcall32"</span>
-    <span class="n">postBuildCommands</span> <span class="s">"copy /y exceld.dll exceld.xll"</span>
-<span class="p">}</span>
+<p><strong><a href="https://www.python.org/dev/peps/pep-0616/">PEP 616: String methods to remove prefixes and suffixes</a></strong></p>
 
-<span class="n">configuration</span> <span class="s">"justxll"</span> <span class="p">{</span>
-    <span class="n">sourceFiles</span> <span class="s">"exceld.def"</span>
-    <span class="err">#</span> <span class="n">must</span> <span class="n">have</span> <span class="n">the</span> <span class="n">appropriate</span> <span class="mi">32</span><span class="p">/</span><span class="mi">64</span> <span class="n">bit</span> <span class="n">Excel</span> <span class="n">SDK</span> <span class="n">xlcall32</span><span class="p">.</span><span class="n">lib</span> <span class="k">in</span> <span class="n">the</span> <span class="n">path</span> <span class="n">of</span> <span class="n">the</span> <span class="n">app</span>
-    <span class="err">#</span> <span class="n">unfortunately</span> <span class="n">they</span><span class="err">'</span><span class="n">re</span> <span class="n">both</span> <span class="n">called</span> <span class="n">xlcall32</span><span class="p">.</span><span class="n">lib</span>
+<p>Two new string methods added:</p>
 
-    <span class="n">libs</span> <span class="s">"xlcall32"</span>
-    <span class="n">postBuildCommands</span> <span class="s">"copy /y exceld.dll exceld.xll"</span>
-<span class="p">}</span>
+<pre><code class="language-Python">&gt; "python".removeprefix("py") # "thon"
+&gt; "python".removesuffix("on") # "pyth"
+</code></pre>
 
+<p><strong><a href="https://www.python.org/dev/peps/pep-0617/">PEP 617: New PEG parser for CPython</a></strong></p>
 
-<span class="c1">// This builds a binary that writes out the necessary .def file
-// to export the functions
-</span><span class="n">configuration</span> <span class="s">"def"</span> <span class="p">{</span>
-    <span class="n">targetType</span> <span class="s">"executable"</span>
-    <span class="n">targetName</span> <span class="s">"write_def"</span>
-    <span class="n">versions</span> <span class="s">"exceldDef"</span>
-<span class="p">}</span>
-</code></pre></div></div>
+<p>A behind the scenes change, but I am very interested in parsing techniques so its nice to see Python get this update.</p>
 
-<p>Finally, copy the desired XLCALL32.LIB file from your Excel SDK install (can be downloaded from <a href="https://www.microsoft.com/en-us/download/details.aspx?id=35567">Microsoft</a>) and run the build command:</p>
+<p>(Side note: this reminded me of the great work Alessandro Warth did on <a href="http://tinlizzie.org/ometa/">OMeta</a> a few years ago as part of his PhD. It turns out, for me, “a few years ago” now equals 13 :grimacing: )</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ dub build --arch=x86_mscoff # For 32 bit
-$ dub build --arch=x86_64 # For 64 bit
-</code></pre></div></div>
+<h1 id="the-algorithm">“The algorithm”</h1>
 
-<p>This should create an “exceld.xll” file in the top level directory. If we open the add-in in excel (explorer.exe exceld.xll can be used on the command line) we can use the function in a spreadsheet.</p>
+<p><img src="https://media.wired.com/photos/5f61109fd2d0ba5ef0f2302f/master/w_2560%2Cc_limit/ff_youtube_top_.jpg" alt="Wired Cover" style="zoom: 25%;" /></p>
 
-<p><img src="/images/excel_d_udf.png" alt="Excel screenshot" /></p>
+<blockquote>
+  <p>“Sargent’s videos are intentionally lo-fi affairs. There’s often a slide show that might include images of Copernicus (deluded), astronauts in space (faked), or Antarctica (made off-limits by a cabal of governments to hide Earth’s edge), which appear onscreen as he speaks in a chill, avuncular voice-over …. Crucial to his success, he says, was YouTube’s recommendation system” - <a href="https://www.wired.com/story/youtube-algorithm-silence-conspiracy-theories/">Wired</a></p>
+</blockquote>
 
-<h1 id="conclusion">Conclusion</h1>
+<p>A recent episode of the Not So Standard Deviations discussed how “the algorithm” was the reason for TikToks valuation <a href="https://nssdeviations.com/114-we-need-tiktok-help">link</a>.</p>
 
-<p>Considering I had never written any D before I was able to get a simple UDF up and running without too much trouble. Excel-d appears to be a very good option if you wish to create custom UDFs, however at the moment it has no support for UI extensions. Also, beginner level documentation is lacking so the best way to find out more is by reading the code in the <a href="https://github.com/symmetryinvestments/excel-d">excel-d repo</a>.</p>
+<p>When discussed in the context of YouTube it is often blamed for the rise of bizarre conspiracy theories such as a belief in flat earth theories, QAnon and the rise of the far right. A recent episode of the real story by the BBC world service went into more detail on the QAnon conspiracy <a href="https://www.bbc.co.uk/programmes/w3cszcnc">link</a>. The rabbit hole podcast from the New York times was recommended as a more in-depth review of the subject <a href="https://www.nytimes.com/2020/04/16/technology/rabbit-hole-podcast-kevin-roose.html">link</a> .</p>
 
+<p>And finally, Wired discusses the issues YouTube have had using AI to moderate content <a href="https://www.wired.com/story/youtube-algorithm-silence-conspiracy-theories/">link</a> <a href="http://marketdesigner.blogspot.com/2020/09/filtering-inappropriate-content-is.html">[via]</a>.</p>
+
+<h1 id="conferencesvideosstreams">Conferences/Videos/Streams</h1>
+
+<ul>
+  <li>The ICML (International Conference on Machine Learning)  talks are now online <a href="https://slideslive.com/icml-2020">link</a>.</li>
+  <li>CPPcon finished recently and its videos are also appearing on its YouTube channel <a href="https://www.youtube.com/user/CppCon">link</a></li>
+  <li>Markus Loning shows off <a href="https://github.com/alan-turing-institute/sktime">sktime</a>, a machine learning library for time series, at PyData Fest Amsterdam <a href="https://www.youtube.com/watch?v=Wf2naBHRo8Q&amp;t=424s">link</a></li>
+  <li>All the videos from this years excellent JuliaConf are now also online <a href="https://www.youtube.com/playlist?list=PLP8iPy9hna6Tl2UHTrm4jnIYrLkIcAROR">link</a>.</li>
+</ul>
 
                 </div>
             </section>
@@ -309,9 +280,9 @@ $ dub build --arch=x86_64 # For 64 bit
                     <div id="disqus_thread"></div>
                     <script>
                         var disqus_config = function () {
-                            this.page.url = '/d_excel_addin/';
-                            this.page.identifier = '/d_excel_addin';
-                            this.page.title = 'Creating an Excel Add-in in D';
+                            this.page.url = '/this-week-in-tabs-i/';
+                            this.page.identifier = '/this-week-in-tabs-i';
+                            this.page.title = 'This week in tabs';
                         };
                         (function() {
                             var d = document, s = d.createElement('script');
@@ -355,54 +326,6 @@ $ dub build --arch=x86_64 # For 64 bit
 
             <!-- If there's a next post, display it using the same markup included from - partials/post-card.hbs -->
             
-                
-
-    <article class="post-card post-template">
-        
-            <a class="post-card-image-link" href="/this-week-in-tabs-i/">
-                <div class="post-card-image" style="background-image: url(/images/pexels-kei-scampa-3009487.jpg)"></div>
-            </a>
-        
-        <div class="post-card-content">
-            <a class="post-card-content-link" href="/this-week-in-tabs-i/">
-                <header class="post-card-header">
-                    
-
-                    <h2 class="post-card-title">This week in tabs</h2>
-                </header>
-                <section class="post-card-excerpt">
-                    
-                        <p></p>
-                    
-                </section>
-            </a>
-            <footer class="post-card-meta">
-                
-                    
-                
-                    
-                
-                    
-                
-                    
-                
-                    
-                
-                    
-                
-                    
-                
-                <span class="reading-time">
-                    
-                    
-                      1 min read
-                    
-                </span>
-            </footer>
-        </div>
-    </article>
-
-            
 
             <!-- If there's a previous post, display it using the same markup included from - partials/post-card.hbs -->
             
@@ -410,16 +333,16 @@ $ dub build --arch=x86_64 # For 64 bit
 
     <article class="post-card post-template">
         
-            <a class="post-card-image-link" href="/calling-rust-from-excel/">
-                <div class="post-card-image" style="background-image: url(/images/person-writing-on-notebook-669615.jpg)"></div>
+            <a class="post-card-image-link" href="/d_excel_addin/">
+                <div class="post-card-image" style="background-image: url(/images/ged048.jpg)"></div>
             </a>
         
         <div class="post-card-content">
-            <a class="post-card-content-link" href="/calling-rust-from-excel/">
+            <a class="post-card-content-link" href="/d_excel_addin/">
                 <header class="post-card-header">
                     
 
-                    <h2 class="post-card-title">Calling Rust from Excel</h2>
+                    <h2 class="post-card-title">Creating an Excel Add-in in D</h2>
                 </header>
                 <section class="post-card-excerpt">
                     
@@ -470,18 +393,18 @@ $ dub build --arch=x86_64 # For 64 bit
         </a>
     </div>
     <span class="floating-header-divider">&mdash;</span>
-    <div class="floating-header-title">Creating an Excel Add-in in D</div>
+    <div class="floating-header-title">This week in tabs</div>
     <div class="floating-header-share">
         <div class="floating-header-share-label">Share this <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <path d="M7.5 15.5V4a1.5 1.5 0 1 1 3 0v4.5h2a1 1 0 0 1 1 1h2a1 1 0 0 1 1 1H18a1.5 1.5 0 0 1 1.5 1.5v3.099c0 .929-.13 1.854-.385 2.748L17.5 23.5h-9c-1.5-2-5.417-8.673-5.417-8.673a1.2 1.2 0 0 1 1.76-1.605L7.5 15.5zm6-6v2m-3-3.5v3.5m6-1v2"/>
 </svg>
 </div>
-        <a class="floating-header-share-tw" href="https://twitter.com/share?text=Creating+an+Excel+Add-in+in+D&amp;url=https://blog.jonharrington.org/d_excel_addin/"
+        <a class="floating-header-share-tw" href="https://twitter.com/share?text=This+week+in+tabs&amp;url=https://blog.jonharrington.org/this-week-in-tabs-i/"
             onclick="window.open(this.href, 'share-twitter', 'width=550,height=235');return false;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
 
         </a>
-        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=https://blog.jonharrington.org/d_excel_addin/"
+        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=https://blog.jonharrington.org/this-week-in-tabs-i/"
             onclick="window.open(this.href, 'share-facebook','width=580,height=296');return false;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"/></svg>
 
